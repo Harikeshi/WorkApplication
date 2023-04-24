@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A5B628B4-251D-42F3-86BA-4DD9E86FB4A8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EJ.logic</RootNamespace>
+    <AssemblyName>EJ.logic</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.20.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.20.0\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus, Version=6.2.2.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.6.2.2\lib\net35\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus.Interfaces, Version=6.1.1.0, Culture=neutral, PublicKeyToken=a694d7f3b0907a61, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.Interfaces.6.1.1\lib\net35\EPPlus.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus.System.Drawing, Version=6.1.1.0, Culture=neutral, PublicKeyToken=2308d35469c9bac0, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.System.Drawing.6.1.1\lib\net35\EPPlus.System.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ej_get\EJDownload.cs" />
+    <Compile Include="ej_xlsx\ExcelGeneratorForEJournalClient.cs" />
+    <Compile Include="ej_xlsx\ExcelResultString.cs" />
+    <Compile Include="ej_xlsx\GenerateEJExcel.cs" />
+    <Compile Include="ej_xlsx\pre_ej\Client.cs" />
+    <Compile Include="ej_xlsx\pre_ej\ClientLine.cs" />
+    <Compile Include="ej_xlsx\DateTimeNominals.cs" />
+    <Compile Include="ej_xlsx\EJournalForExcelList.cs" />
+    <Compile Include="ej_xlsx\pre_ej\EJournalDay.cs" />
+    <Compile Include="ej_xlsx\pre_ej\Nominal.cs" />
+    <Compile Include="ej_xlsx\pre_ej\Operator.cs" />
+    <Compile Include="ej_xlsx\pre_ej\RawEJournal.cs" />
+    <Compile Include="ej_xlsx\pre_ej\RawOperation.cs" />
+    <Compile Include="ej_xlsx\pre_ej\Utils.cs" />
+    <Compile Include="ej_xlsx\pre_excel\ExcelDay.cs" />
+    <Compile Include="ej_xlsx\pre_excel\ExcelDays.cs" />
+    <Compile Include="ej_xlsx\pre_excel\Header.cs" />
+    <Compile Include="ej_xlsx\OperDay.cs" />
+    <Compile Include="ej_xlsx\pre_ej\Part.cs" />
+    <Compile Include="ej_xlsx\ResultListOfDay.cs" />
+    <Compile Include="ej_xlsx\StructureForExcel.cs" />
+    <Compile Include="ej_xlsx\Utils.cs" />
+    <Compile Include="ej_xlsx\xlsx\ExcelGeneratorForEJournal.cs" />
+    <Compile Include="ej_xlsx\xlsx\ExcelReader.cs" />
+    <Compile Include="ej_xlsx\xlsx\ExcelString.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
