@@ -78,9 +78,11 @@ namespace EJ.logic.ej_xlsx
             {
                 if (Disps.Times.Count == Depos.Times.Count)
                 {
-                    for (int i = 0; i < Disps.Times.Count; ++i)
+                    // Первую самую раннюю последнюю самую позднюю
+                    var time = Disps.Times[0] <= Depos.Times[0] ? Disps.Times[0] : Depos.Times[0];
+                    for (int i = 1; i < Disps.Times.Count; ++i)
                     {
-                        var time = Disps.Times[i] <= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
+                        time = Disps.Times[i] >= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
 
                         times.Add(time);
                     }
@@ -107,6 +109,7 @@ namespace EJ.logic.ej_xlsx
                 foreach (var item in Disps.Times) times.Add(item);
             else if (Depos != null)
                 foreach (var item in Depos.Times) times.Add(item);
+
             return times;
         }
         private void InitOperDays()
@@ -302,6 +305,8 @@ namespace EJ.logic.ej_xlsx
                         {
                             ++i;
                         }
+
+                        // Большее время
                         lst.Add(new DateTimeNominals(operators[i - 1].Time, operators[i - 1].Nominals));
                         break;
                     }
@@ -319,6 +324,7 @@ namespace EJ.logic.ej_xlsx
             //TODO: надо проверять
             // 
             var clients = EJournal.GetClients();
+            // Если не нашли то берем последнюю 
             var last = new DateTimeNominals(time, operators[0].Nominals);
 
             return last;

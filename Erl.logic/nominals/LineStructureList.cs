@@ -57,21 +57,35 @@ namespace Erl.logic.nominals
                 }
             return false;
         }
+        private SortedDictionary<int, int> FirstBim(RawNdcTransactionsList erls)
+        {
+            foreach (var item in erls)
+            {
+                if (item.bims.Count > 0)
+                {
+                    return item.bims[0];
+                }
+            }
+            return null;
+        }
+
+        private NominalList FirstCdm(RawNdcTransactionsList erls)
+        {
+            foreach (var item in erls)
+            {
+                if (item.cdms.Count > 0)
+                {
+                    return item.cdms[0];
+                }
+            }
+            return null;
+        }
+
         public LineStructureList(RawNdcTransactionsList erls)
         {
 
-            NominalList lastc = null;
-            SortedDictionary<int, int> lastb = null;
-
-            if (erls[0].cdms.Count > 0)
-            {
-                lastc = erls[0].cdms.First();
-            }
-
-            if (erls[0].bims.Count > 0)
-            {
-                lastb = erls[0].bims.First();// = erls.BeginBim;
-            }
+            NominalList lastc = FirstCdm(erls);
+            SortedDictionary<int, int> lastb = FirstBim(erls);
 
             int start = 0;
             if (erls[0].Type == TransactionType.Begin) start = 1;
