@@ -6,6 +6,7 @@ namespace Erl.logic.nominals
 
     class LineStructureList : List<LineStructure>
     {
+        public SortedDictionary<string, UnknownNominal> UnKnowns;// = new SortedDictionary<string, UnknownNominal>();
         private NominalList DifferenceOfNominalLists(NominalList cur, NominalList last)
         {
             if (cur.Count != last.Count)
@@ -83,6 +84,7 @@ namespace Erl.logic.nominals
 
         public LineStructureList(RawNdcTransactionsList erls)
         {
+            UnKnowns = erls.GetUnKnowns();
 
             NominalList lastc = FirstCdm(erls);
             SortedDictionary<int, int> lastb = FirstBim(erls);

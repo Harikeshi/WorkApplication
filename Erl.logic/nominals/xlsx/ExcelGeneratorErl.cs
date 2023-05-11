@@ -34,7 +34,7 @@ namespace Erl.logic.nominals
             var row = 2;
             var column = 1;
 
-            // Head
+            // Header
             for (int c = 0; c < erl.Header.Count; c++)
             {
                 sheet.Cells[1, column + c + 2].Value = erl.Header[c];
@@ -56,6 +56,7 @@ namespace Erl.logic.nominals
 
             //row++;
 
+            // Body
             for (int j = 0; j < erl.Count; ++j)
             {
                 if (erl[j].Card != "")
@@ -71,6 +72,19 @@ namespace Erl.logic.nominals
                 }
             }
 
+            row += 5;
+
+            // Unknown
+            if (erl.UnKnowns.Count > 0)
+            {
+                foreach (var item in erl.UnKnowns)
+                {
+                    sheet.Cells[row, column].Value = item.Value.Time.ToString();
+                    sheet.Cells[row, column + 1].Value = item.Value.Nominal;
+                    sheet.Cells[row, column + 2].Value = item.Value.Count;
+                    row++;
+                }
+            }
             // TODO: Привязать к относительной сетке
             sheet.Column(column).Width = 20;
             sheet.Column(column + 1).Width = 20;

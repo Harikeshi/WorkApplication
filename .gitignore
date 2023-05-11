@@ -22,7 +22,8 @@ last/
 packages/
 
 # Examples Files
-*.xslx
+*.xlsx
+*.XLSX
 *.pdf
 *.erl
 *.ERL

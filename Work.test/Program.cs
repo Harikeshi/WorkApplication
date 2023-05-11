@@ -26,7 +26,6 @@ namespace Work.test
 
             EJGenerateTest(path_in, path_out, dep, dis);
 
-
             //GenerateErlExcel exl = new GenerateErlExcel(epath_in, epath_out);
 
             Console.WriteLine();

@@ -7,10 +7,12 @@ namespace Erl.logic.nominals
         public int cdm_length { get; set; }
         public int bim_length { get; set; }
         public int p_length { get; set; }
+        public SortedDictionary<string, UnknownNominal> UnKnowns;
         public ExcelHeader Header = new ExcelHeader();
 
         public DifferenceListForExcel(LineStructureList lst)
         {
+            UnKnowns = lst.UnKnowns;
             // Находим эталонную длину депозитора
             var etalon = DesignEtalons(lst);
 
@@ -50,9 +52,7 @@ namespace Erl.logic.nominals
             cdm_length = disp.Count;
             bim_length = etalon.Count;
 
-            // Проходим по всем линиям
-            // 
-
+            // Проходим по всем линиям         
             if (cdm_length > 0 & bim_length > 0)
             {
                 foreach (var item in lst)

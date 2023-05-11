@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -102,7 +103,15 @@ namespace Wpf.GUI
         private void ErlGenerateButton(object sender, RoutedEventArgs e)
         {
 
-            if (File.Exists(excel_from))
+            var files = Directory.GetFiles(excel_from);
+            bool exists = false;
+            foreach (var item in files)
+            {
+                if (Regex.IsMatch(item, @"\.erl|\.ERL"))
+                { exists = true; break; }
+            }
+
+            if (exists)
             {
                 GenerateErlExcel erl = new GenerateErlExcel(excel_from, excel_to + erlp);
 
@@ -188,7 +197,7 @@ namespace Wpf.GUI
                     {
                         MessageBox.Show("Файл excel.xslx не создан.");
                     }
-                }               
+                }
             }
             else
             {

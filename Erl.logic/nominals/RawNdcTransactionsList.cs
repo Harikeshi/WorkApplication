@@ -51,18 +51,26 @@ namespace Erl.logic.nominals
         // cmd_cdm_dispense(R<0> 0<   0> 1<   0> 2<   0> 3<   0> 4<  20> 5<   0> 6<   0>)
         readonly string pd = @"NDC Dispense <\d+,\d+,\d+,\d+,\d+,\d+,\d+> Action: 00000000";
 
-        public SortedDictionary<string, UnknownNominal> UnKnowns = new SortedDictionary<string, UnknownNominal>();
+        // количество оригинальных кассет
+        int cass_number = 0;
+
+        private SortedDictionary<string, UnknownNominal> UnKnowns = new SortedDictionary<string, UnknownNominal>();
         public RawNdcTransactionsList(string path)
         {
-            var txt = ReadErlFiles(path);
+            var txt = new ErlReader().ReadErlFiles(path);
 
             this.InitTransactions(txt);
         }
+        public SortedDictionary<string, UnknownNominal> GetUnKnowns()
+        {
+            return UnKnowns;
+        }
+
         private void FindUnknown(List<string> lst)
         {
             foreach (var item in lst)
             {
-                if (Regex.IsMatch(item, pbim))
+                if (Regex.IsMatch(item.Substring(58), pbim))
                 {
                     //BIMSESITEM(SES){dwNoteCode<     8> Nominal<   10000 643> usAcceptedCount<    0> AccL3<    0> AccL2<    0> dwCashInCount<    8>
                     //usUnknownCount<    0> dwRetractCount<    0> dwCashOutCount<    7> CashInL3<   0> CashInL2<   0> fwStatus<0>}
@@ -77,7 +85,7 @@ namespace Erl.logic.nominals
                         if (count > 0)
                             if (UnKnowns.ContainsKey(code))
                             {
-                                UnKnowns[code].Count = count;
+                                UnKnowns[code].Count = count;                                
                             }
                             else
                             {
@@ -87,46 +95,11 @@ namespace Erl.logic.nominals
                 }
             }
         }
-        private List<string> ReadErlFiles(string path)
-        {
-            List<string> txt = new List<string>();
 
-            if (Regex.IsMatch(path, @"\.erl|\.ERL"))
-            {
-                txt = File.ReadAllLines(path).ToList();
-            }
-            else
-            {
-                ConcurrentQueue<string> listFiles = new ConcurrentQueue<string>();
-
-                var files = Directory.GetFiles(path);
-                foreach (var file in files)
-                {
-                    if (Regex.IsMatch(file, @"\.erl|.ERL"))
-                    {
-                        listFiles.Enqueue(file);
-                    }
-                }
-
-                Dictionary<string, string[]> Files = new Dictionary<string, string[]>();
-                Parallel.ForEach(listFiles, (currentFile =>
-                {
-                    var lst = File.ReadAllLines(currentFile);
-
-                    Files.Add(currentFile, lst);
-                }));
-
-                foreach (var file in listFiles)
-                {
-                    txt.AddRange(Files[file]);
-                }
-            }
-
-            //File.WriteAllLines(path + @"erls.txt", txt);
-            return txt;
-        }
         private void InitTransactions(List<string> txt)
         {
+            FindUnknown(txt);
+
             // Добавить lstb lastc
             NominalList lstc = null;
             SortedDictionary<int, int> lstb = null;
@@ -134,18 +107,20 @@ namespace Erl.logic.nominals
             ListType strings = new ListType();
             strings.Type = TransactionType.Begin;
 
+            RawNdcTransaction ndc = null;
+
             foreach (var line in txt)
             {
                 if (Regex.IsMatch(line.Substring(58), pcard))
                 {
-                    var ndc = CreateTransaction(lstc, lstb, strings);
+                    ndc = CreateTransaction(ref lstc, ref lstb, strings);
                     if (ndc != null) this.Add(ndc);
                     strings = new ListType(line);
                     strings.Type = TransactionType.Client;
                 }
                 else if (Regex.IsMatch(line.Substring(58), start_incass))
                 {
-                    var ndc = CreateTransaction(lstc, lstb, strings);
+                    ndc = CreateTransaction(ref lstc, ref lstb, strings);
                     if (ndc != null) this.Add(ndc);
 
                     strings = new ListType(line);
@@ -156,10 +131,12 @@ namespace Erl.logic.nominals
                     strings.Add(line);
                 }
             }
+            ndc = CreateTransaction(ref lstc, ref lstb, strings);
+            if (ndc != null) this.Add(ndc);
         }
-        private RawNdcTransaction CreateTransaction(NominalList lstc, SortedDictionary<int, int> lstb, ListType strings)
+        private RawNdcTransaction CreateTransaction(ref NominalList lstc, ref SortedDictionary<int, int> lstb, ListType strings)
         {
-            var ndc = InitializeTransaction(strings, lstb, lstc);
+            var ndc = InitializeTransaction(strings, ref lstb, ref lstc);
             // TODO: Проход по телу транзакции
 
             if (ndc.cdms.Count > 0 || ndc.bims.Count > 0)
@@ -177,7 +154,7 @@ namespace Erl.logic.nominals
 
             return null;
         }
-        private RawNdcTransaction InitializeTransaction(ListType strings, SortedDictionary<int, int> lstb, NominalList lstc)
+        private RawNdcTransaction InitializeTransaction(ListType strings, ref SortedDictionary<int, int> lstb, ref NominalList lstc)
         {
             var time = DateTime.ParseExact(Regex.Match(strings.Get(0), ptime).Value, "yyyyMMdd:HHmmss", CultureInfo.CurrentCulture);
 
@@ -248,7 +225,7 @@ namespace Erl.logic.nominals
 
             // Требуется делать возврат на 
 
-            for (int i = strings.Count - 1; i > 0; --i)
+            for (int i = strings.Count - 1; i >= 0; --i)
             {
                 if (Regex.IsMatch(strings.Get(i).Substring(58), for_bim))
                 {
@@ -272,6 +249,17 @@ namespace Erl.logic.nominals
 
                     if (cdm.Count > 0)
                     {
+                        // Определяем количество денежных кассет
+                        if (cass_number == 0)
+                        {
+                            foreach (var item in cdm)
+                            {
+                                if (item.Nominal > 5)
+                                {
+                                    cass_number++;
+                                }
+                            }
+                        }
 
                         if (lstc == null || cdm.IsNoEqual(lstc))
                         {
@@ -381,7 +369,7 @@ namespace Erl.logic.nominals
                         if (!disp.ContainsKey(nom)) disp.Add(nom, count);
                     }
                 }
-            
+
 
             return disp;
         }
@@ -400,7 +388,7 @@ namespace Erl.logic.nominals
                         NominalList lst = new NominalList(DateTime.ParseExact(Regex.Match(strings.Get(i), ptime).Value, "yyyyMMdd:HHmmss", CultureInfo.CurrentCulture));
                         var nums = match.Value.Trim('<', '>').Split(',');
 
-                        for (int d = 0, j = 0; d < 4; ++d, ++j)
+                        for (int d = 0, j = 0; d < cass_number; ++d, ++j)
                         {
                             lst.Add(j, Convert.ToInt32(nums[d]));
                         }
@@ -415,6 +403,7 @@ namespace Erl.logic.nominals
             --i;
             int temp = i;
             NominalList cdm = new NominalList(time);
+
             while (i > 0)
             {
                 if (Regex.IsMatch(txt.Get(i).Substring(58), cdm_note))

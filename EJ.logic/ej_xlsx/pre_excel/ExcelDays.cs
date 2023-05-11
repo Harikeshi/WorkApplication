@@ -6,6 +6,8 @@ namespace EJ.logic.ej_xlsx.pre_excel
 {
     class ExcelOperations : List<ExcelString>
     {
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
         public List<DateTime> Times = new List<DateTime>();
         public ExcelOperations(ExcelDay day)
         {

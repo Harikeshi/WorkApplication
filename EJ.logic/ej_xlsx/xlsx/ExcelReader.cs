@@ -10,6 +10,9 @@ namespace EJ.logic.ej_xlsx.xlsx
 {
     class ExcelReader : List<ExcelString>
     {
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+
         private List<List<string>> ReadXML(string path)
         {
             List<List<string>> lst = new List<List<string>>();
@@ -55,6 +58,10 @@ namespace EJ.logic.ej_xlsx.xlsx
         public List<ExcelString> Read(string path)
         {
             var lst = ReadXML(path);
+
+            Start = DateTime.ParseExact(lst[2][0].Substring(lst[2][0].IndexOf(':') + 2), "dd/MM/yyyy HH:mm:ss", CultureInfo.CurrentCulture);
+            End = DateTime.ParseExact(lst[3][0].Substring(lst[3][0].IndexOf(':') + 2), "dd/MM/yyyy HH:mm:ss", CultureInfo.CurrentCulture);
+
             int i = 7;
             try
             {

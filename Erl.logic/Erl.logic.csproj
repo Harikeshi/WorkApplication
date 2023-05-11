@@ -58,6 +58,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ErlReader.cs" />
     <Compile Include="nominals\DifferenceListForExcel.cs" />
     <Compile Include="nominals\xlsx\ExcelGeneratorErl.cs" />
     <Compile Include="nominals\GenerateErlExcel.cs" />

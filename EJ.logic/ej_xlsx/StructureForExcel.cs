@@ -74,18 +74,29 @@ namespace EJ.logic.ej_xlsx
         {
             List<DateTime> times = new List<DateTime>();
 
+            bool start = false;
             if (Disps != null && Depos != null)
             {
+                // 
                 if (Disps.Times.Count == Depos.Times.Count)
                 {
                     // Первую самую раннюю последнюю самую позднюю
                     var time = Disps.Times[0] <= Depos.Times[0] ? Disps.Times[0] : Depos.Times[0];
+                    times.Add(time);
                     for (int i = 1; i < Disps.Times.Count; ++i)
                     {
-                        time = Disps.Times[i] >= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
-
+                        if (start)
+                        {
+                            time = Disps.Times[i] >= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
+                            start = false;
+                        }
+                        else
+                        {
+                            time = Disps.Times[i] <= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
+                            start = true;
+                        }
                         times.Add(time);
-                    }
+                    }                   
                 }
                 else if (Disps.Times.Count > Depos.Times.Count)
                 {
@@ -93,7 +104,7 @@ namespace EJ.logic.ej_xlsx
                     foreach (var item in Disps.Times)
                     {
                         times.Add(item);
-                    }
+                    }                   
                 }
                 else
                 {
@@ -102,13 +113,23 @@ namespace EJ.logic.ej_xlsx
                         {
                             times.Add(item);
                         }
-                    }
+                    }                   
                 }
+                times[0] = Disps.Start;
+                times[times.Count - 1] = Disps.End;
             }
             else if (Disps != null)
+            {
                 foreach (var item in Disps.Times) times.Add(item);
+                times[0] = Disps.Start;
+                times[times.Count - 1] = Disps.End;
+            }
             else if (Depos != null)
+            {
                 foreach (var item in Depos.Times) times.Add(item);
+                times[0] = Depos.Start;
+                times[times.Count - 1] = Depos.End;
+            }
 
             return times;
         }
@@ -188,6 +209,8 @@ namespace EJ.logic.ej_xlsx
 
             ExcelOperations exo = new ExcelOperations(lines);
 
+            exo.Start = reader.Start; exo.End = reader.End;
+
             return exo;
         }
         private static ClientLine InitClientLine(Client client, int p)
@@ -213,28 +236,64 @@ namespace EJ.logic.ej_xlsx
         {
             // TODO: Если время не находим для данного промежутка, то ищем первое подходящее время для данного              
 
-            if (operators.Count == 0)
+            if (operators.Count <= 1)
             {
                 // Берем время первого и последнего клиента
                 var clients = EJournal.GetClients();
-                var begin = FindFirstTimeOfClient(clients, new List<Nominal>());
-                var end = FindLastTimeOfClient(clients, new List<Nominal>());
-                if (begin != null) Times.Add(begin);
-                if (end != null) Times.Add(end);
+
+                // Первого берем: находим предыдущего клиента если есть
+                // И до конца клиентов
+                var nominals = new List<Nominal>();
+                if (operators.Count == 1)
+                {
+                    nominals = operators[0].Nominals;
+                }
+                Times.Add(new DateTimeNominals(times[0], nominals));
+                Times.Add(new DateTimeNominals(clients.Last(c => c.IsHad == true).Time, nominals));
 
                 return;
             }
 
-            int i = 0;
+            for (int i = 0, j = 0; i < times.Count; ++i)
+            {
+                for (j = 0; j < operators.Count; ++j)
+                {
+                    //var time1 = times[i];
+                    //var time2 = operators[j].Time;
+                    if (times[i] < operators[j].Time)
+                    {
+                        if (i != times.Count - 1)
+                        {
+                            Times.Add(new DateTimeNominals(operators[j - 1].Time, operators[j - 1].Nominals));
+                        }
+                        else
+                        {
+                            Times.Add(new DateTimeNominals(operators[j].Time, operators[j].Nominals));
+                        }
+                        break;
+                    }
+                }
+            }
+            if (times.Count > Times.Count)
+            {
+                if (times[times.Count - 1] > operators[operators.Count - 1].Time)
+                    Times.Add(new DateTimeNominals(times[times.Count - 1], operators[0].Nominals));
+                else
+                    Times.Add(new DateTimeNominals(operators[operators.Count - 1].Time, operators[operators.Count - 1].Nominals));
 
-            var beg = MakeFirstTime(operators, times[0], ref i);
-            Times.Add(beg);
+            }
 
-            var mid = MakeMiddleTimes(operators, times, ref i);
-            Times.AddRange(mid);
 
-            var en = MakeLastTime(operators, times.Last(), i);
-            Times.Add(en);
+            //int i = 0;
+
+            //var beg = MakeFirstTime(operators, times[0], ref i);
+            //Times.Add(beg);
+
+            //var mid = MakeMiddleTimes(operators, times, ref i);
+            //Times.AddRange(mid);
+
+            //var en = MakeLastTime(operators, times.Last(), i);
+            //Times.Add(en);
         }
         private DateTimeNominals MakeFirstTime(List<Operator> operators, DateTime t, ref int i)
         {
