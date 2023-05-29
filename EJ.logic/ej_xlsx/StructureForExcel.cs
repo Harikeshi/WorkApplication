@@ -50,19 +50,29 @@ namespace EJ.logic.ej_xlsx
             if (ej.GetOperators().Count > 0) type = ej.GetOperators().First().Type;
             else { Console.WriteLine("Отсутствуют входы оператора."); return; }
 
+            DateTime start = DateTime.MinValue;
+            DateTime end = DateTime.MinValue;
+
             // Находим времена деления по Диспенсеру и депозитору.
-            if (File.Exists(disp_path))
-                Disps = InitExcelOperations(disp_path);
-
-            if (File.Exists(dep_path))
-                Depos = InitExcelOperations(dep_path);
-
+            InitDispAndDepos(disp_path, dep_path, ref start, ref end);
             // Определение времени
             // Если оба есть, если их длины равны, то проходим и 
             List<DateTime> times = InitPreTimes();
 
             // times - время периодов из excel
-            InitTimes(ej.GetOperators(), times);
+            //InitTimes(ej.GetOperators(), times, start, end);
+
+            Times.Add(new DateTimeNominals(start, ej.GetOperators()[0].Nominals));
+            Times.Add(new DateTimeNominals(end, ej.GetOperators()[0].Nominals));
+
+            // Начало всегда есть и конец
+
+            // Если у нас один оперцикл в Эксель - то берем начало и конец
+            //if()
+
+            // Если не один то надо подобрать промежуточные времена
+
+            //
 
 
             InitOperDays();
@@ -70,54 +80,56 @@ namespace EJ.logic.ej_xlsx
             //InitEjParts();
         }
 
+        private void InitDispAndDepos(string disp_path, string dep_path, ref DateTime start, ref DateTime end)
+        {
+            if (File.Exists(disp_path))
+            {
+                Disps = InitExcelOperations(disp_path);
+                start = Disps.Start;
+                end = Disps.End;
+            }
+            if (File.Exists(dep_path))
+            {
+                Depos = InitExcelOperations(dep_path);
+                start = Depos.Start;
+                end = Depos.End;
+            }
+        }
+
         private List<DateTime> InitPreTimes()
         {
             List<DateTime> times = new List<DateTime>();
 
-            bool start = false;
+
             if (Disps != null && Depos != null)
             {
+                times.Add(Disps.Start);
                 // 
                 if (Disps.Times.Count == Depos.Times.Count)
                 {
                     // Первую самую раннюю последнюю самую позднюю
-                    var time = Disps.Times[0] <= Depos.Times[0] ? Disps.Times[0] : Depos.Times[0];
-                    times.Add(time);
-                    for (int i = 1; i < Disps.Times.Count; ++i)
+                    for (int i = 1; i < Disps.Times.Count - 1; ++i)
                     {
-                        if (start)
-                        {
-                            time = Disps.Times[i] >= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
-                            start = false;
-                        }
-                        else
-                        {
-                            time = Disps.Times[i] <= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
-                            start = true;
-                        }
+                        var time = Disps.Times[i] >= Depos.Times[i] ? Disps.Times[i] : Depos.Times[i];
                         times.Add(time);
-                    }                   
+                    }
                 }
                 else if (Disps.Times.Count > Depos.Times.Count)
                 {
-
-                    foreach (var item in Disps.Times)
+                    for (int i = 1; i < Disps.Times.Count - 1; ++i)
                     {
-                        times.Add(item);
-                    }                   
+                        times.Add(Disps.Times[i]);
+                    }
                 }
                 else
                 {
-                    foreach (var item in Depos.Times)
+                    for (int i = 1; i < Depos.Times.Count - 1; ++i)
                     {
-                        {
-                            times.Add(item);
-                        }
-                    }                   
+                        times.Add(Depos.Times[i]);
+                    }
                 }
-                times[0] = Disps.Start;
-                times[times.Count - 1] = Disps.End;
-            }
+                times.Add(Disps.End);
+            }//*
             else if (Disps != null)
             {
                 foreach (var item in Disps.Times) times.Add(item);
@@ -232,9 +244,11 @@ namespace EJ.logic.ej_xlsx
 
             return cl;
         }
-        private void InitTimes(List<Operator> operators, List<DateTime> times)
+        private void InitTimes(List<Operator> operators, List<DateTime> times, DateTime start, DateTime end)
         {
             // TODO: Если время не находим для данного промежутка, то ищем первое подходящее время для данного              
+
+            //  1-2 2-3 
 
             if (operators.Count <= 1)
             {
@@ -282,18 +296,6 @@ namespace EJ.logic.ej_xlsx
                     Times.Add(new DateTimeNominals(operators[operators.Count - 1].Time, operators[operators.Count - 1].Nominals));
 
             }
-
-
-            //int i = 0;
-
-            //var beg = MakeFirstTime(operators, times[0], ref i);
-            //Times.Add(beg);
-
-            //var mid = MakeMiddleTimes(operators, times, ref i);
-            //Times.AddRange(mid);
-
-            //var en = MakeLastTime(operators, times.Last(), i);
-            //Times.Add(en);
         }
         private DateTimeNominals MakeFirstTime(List<Operator> operators, DateTime t, ref int i)
         {
