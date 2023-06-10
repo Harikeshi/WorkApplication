@@ -16,13 +16,13 @@ namespace Work.test
 
             Console.OutputEncoding = Encoding.UTF8;
 
-            string path_in = @"d:\Projects\work\actual\ej.txt";
-            string path_out = @"d:\Projects\work\actual\excel.xlsx";
-            string epath_in = @"d:\Projects\work\actual\";
-            string epath_out = @"d:\Projects\work\actual\erl.xlsx";
+            string path_in = @"d:\temp\ej.txt";
+            string path_out = @"d:\temp\excel.xlsx";
+            string epath_in = @"d:\temp\";
+            string epath_out = @"d:\temp\erl.xlsx";
 
-            string dep = @"d:\Projects\work\actual\depo.xlsx";
-            string dis = @"d:\Projects\work\actual\disp.xlsx";
+            string dep = @"d:\temp\depo.xlsx";
+            string dis = @"d:\temp\disp.xlsx";
 
             EJGenerateTest(path_in, path_out, dep, dis);
 
