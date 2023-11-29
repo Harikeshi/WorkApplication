@@ -21,7 +21,7 @@ namespace Work.test
             Console.OutputEncoding = Encoding.UTF8;
 
             string actual = @"c:\Users\sshch\OneDrive\VisualStudio\WorkApplication\";
-
+            string actuald = @"d:\Projects\work\actual\";
             string path_in = actual + "ej.txt";
             string path_out = actual + "excel.xlsx";
             string epath_in = actual;
