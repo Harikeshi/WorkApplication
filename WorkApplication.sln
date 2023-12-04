@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Work.test", "Work.test\Work
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alpha.logic", "Alpha.logic\Alpha.logic.csproj", "{B1C32745-D375-4776-B7A2-ACF7A9FCBC2D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stat.logic", "Stat.logic\Stat.logic.csproj", "{137CDAF8-99C5-4BD8-B247-6E2AAF172529}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{B1C32745-D375-4776-B7A2-ACF7A9FCBC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1C32745-D375-4776-B7A2-ACF7A9FCBC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1C32745-D375-4776-B7A2-ACF7A9FCBC2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{137CDAF8-99C5-4BD8-B247-6E2AAF172529}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{137CDAF8-99C5-4BD8-B247-6E2AAF172529}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{137CDAF8-99C5-4BD8-B247-6E2AAF172529}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{137CDAF8-99C5-4BD8-B247-6E2AAF172529}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

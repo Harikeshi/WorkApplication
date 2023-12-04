@@ -28,12 +28,18 @@
             <TextBox x:Name ="editBox" Margin="5, 0, 5, 5" FontFamily = "Times New Roman" FontSize ="20" Height="24"  Width="Auto" MinWidth = "300" FontWeight="Bold"/>
             <Button x:Name="erl1" Margin="5, 0, 5, 5"  MinWidth="100" Background="Yellow" Click="ErlGenerateButton" Content="ERL"/>
             <Button x:Name="excel" Margin="5, 0, 5, 5" MinWidth="100" Background="Yellow" Click="FullExcelGenerateButton" Content="Excel"/>
+            <Button x:Name="LineButton" Margin="5, 0, 5, 5" MinWidth="100" Background="Yellow" Click="ChartsButton_Click" Content="Bars"/>
             <!--<Button x:Name="ejNums" Margin="5, 0, 5, 5" MinWidth="100" Background="Yellow" Click="EjGenerateCountsButton" Content="EJ->NUMS"/>
             <Button x:Name="erl2" Margin="5, 0, 5, 5" MinWidth="100" Background="Yellow" Click="FullErlGenerateButton" Content="PRJ"/>-->
 
         </WrapPanel>
         <StackPanel Grid.Row="2">
-            <TextBox Name ="InfoBox" Height="300" FontFamily = "Times New Roman" FontSize ="20" Margin="5"></TextBox>
+            <Grid Name ="InfoBox" Width="Auto" Height="500" Background="Gray" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="365*"/>
+                    <ColumnDefinition Width="24*"/>
+                </Grid.ColumnDefinitions>
+            </Grid>
         </StackPanel>
     </Grid>
 </Window>

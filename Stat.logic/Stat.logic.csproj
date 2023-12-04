@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E2FA9197-9B04-49CA-9582-06B9AC8AA899}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Work.test</RootNamespace>
-    <AssemblyName>Work.test</AssemblyName>
+    <ProjectGuid>{137CDAF8-99C5-4BD8-B247-6E2AAF172529}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Stat.logic</RootNamespace>
+    <AssemblyName>Stat.logic</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +24,6 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -44,29 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Alpha.logic\Alpha.logic.csproj">
-      <Project>{b1c32745-d375-4776-b7a2-acf7a9fcbc2d}</Project>
-      <Name>Alpha.logic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EJ.logic\EJ.logic.csproj">
-      <Project>{a5b628b4-251d-42f3-86ba-4dd9e86fb4a8}</Project>
-      <Name>EJ.logic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Erl.logic\Erl.logic.csproj">
-      <Project>{1f71d7f3-eb5e-417e-9427-34ea4f4a1151}</Project>
-      <Name>Erl.logic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Stat.logic\Stat.logic.csproj">
-      <Project>{137cdaf8-99c5-4bd8-b247-6e2aaf172529}</Project>
-      <Name>Stat.logic</Name>
-    </ProjectReference>
+    <Compile Include="TaskInfo.cs" />
+    <Compile Include="TasksBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

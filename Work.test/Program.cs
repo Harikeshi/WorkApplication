@@ -1,5 +1,6 @@
 ﻿using EJ.logic.ej_xlsx;
 using Erl.logic.nominals;
+using Stat.logic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,19 +10,21 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+//using static Application.Program;
 
 namespace Work.test
 {
     internal class Program
     {
-
         static void Main(string[] args)
         {
 
             Console.OutputEncoding = Encoding.UTF8;
 
             string actual = @"c:\Users\sshch\OneDrive\VisualStudio\WorkApplication\";
+            string actuald = @"d:\Projects\work\actual\";
 
+            string dirs = @"d:\temp\dirs";
             string path_in = actual + "ej.txt";
             string path_out = actual + "excel.xlsx";
             string epath_in = actual;
@@ -30,13 +33,18 @@ namespace Work.test
             string dep = actual + "depo.xlsx";
             string dis = actual + "disp.xlsx";
 
-            EJGenerateTest(path_in, path_out, dep, dis);
+            //EJGenerateTest(path_in, path_out, dep, dis);
 
             //GenerateErlExcel exl = new GenerateErlExcel(epath_in, epath_out);
 
             //Process.Start("microsoft-edge:http://www.bing.com");
 
-            Console.WriteLine();
+            TasksBase tb = new TasksBase(dirs);
+
+            tb.TodayWork();
+            
+
+
         }
 
         private static void EJGenerateTest(string path_in, string path_out, string dep, string dis)
