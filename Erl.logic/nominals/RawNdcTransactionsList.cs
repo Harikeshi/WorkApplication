@@ -44,7 +44,7 @@ namespace Erl.logic.nominals
 
         readonly string start_incass = @"bin_start_exchange\(\)";
 
-        readonly string pcard = @"\d{6}XXXXXX\d{4}";
+        readonly string pcard = @"\d{6}X{6,9}\d{4}"; // card and dpan 
         readonly string ptime = @"\d{8}:\d{6}";
 
         // cmd_cdm_dispense_ext(bPresent<0> R<0> 0<   0> 1<   0> 2<   5> 3<   1> 4<   4> 5<   0> 6<   0>)
@@ -55,6 +55,7 @@ namespace Erl.logic.nominals
         int cass_number = 0;
 
         private SortedDictionary<string, UnknownNominal> UnKnowns = new SortedDictionary<string, UnknownNominal>();
+        
         public RawNdcTransactionsList(string path)
         {
             var txt = new ErlReader().ReadErlFiles(path);
@@ -98,9 +99,10 @@ namespace Erl.logic.nominals
 
         private void InitTransactions(List<string> txt)
         {
+            // Проходим и ищем unknow
             FindUnknown(txt);
 
-            // Добавить lstb lastc
+            // Добавить lstb lastc 
             NominalList lstc = null;
             SortedDictionary<int, int> lstb = null;
 
@@ -109,6 +111,7 @@ namespace Erl.logic.nominals
 
             RawNdcTransaction ndc = null;
 
+            // Проходим по строкам, если попадаем на pcard Значит новая транзакция
             foreach (var line in txt)
             {
                 if (Regex.IsMatch(line.Substring(58), pcard))
@@ -134,6 +137,7 @@ namespace Erl.logic.nominals
             ndc = CreateTransaction(ref lstc, ref lstb, strings);
             if (ndc != null) this.Add(ndc);
         }
+
         private RawNdcTransaction CreateTransaction(ref NominalList lstc, ref SortedDictionary<int, int> lstb, ListType strings)
         {
             var ndc = InitializeTransaction(strings, ref lstb, ref lstc);
@@ -152,6 +156,7 @@ namespace Erl.logic.nominals
                 return ndc;
             }
 
+            // Если транзакция без выдачи и приема возвращаем null
             return null;
         }
         private RawNdcTransaction InitializeTransaction(ListType strings, ref SortedDictionary<int, int> lstb, ref NominalList lstc)
@@ -219,28 +224,26 @@ namespace Erl.logic.nominals
             ndc.bims.Add(bim);
             lstb = new SortedDictionary<int, int>();
         }
+
         private void InitilizeClient(ref RawNdcTransaction ndc, ListType strings, ref SortedDictionary<int, int> lstb, ref NominalList lstc)
         {
             ndc.Card = Regex.Match(strings.Get(0), pcard).Value;
 
             // Требуется делать возврат на 
-
             for (int i = strings.Count - 1; i >= 0; --i)
             {
                 if (Regex.IsMatch(strings.Get(i).Substring(58), for_bim))
                 {
                     // Набираем bim
                     SortedDictionary<int, int> bim = CreateBim(strings, ref i);
+                    
                     // Решаем надо ли его добавлять в стек
-
                     if (lstb == null || IsNoEqualDictionary(ref bim, ref lstb))
                     {
                         ndc.bims.Add(bim);
                         lstb = bim;
                     }
-
                 }
-
                 // Для CDM 
                 else if (Regex.IsMatch(strings.Get(i).Substring(58), for_cdm))
                 {

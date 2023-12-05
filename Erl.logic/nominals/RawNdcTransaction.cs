@@ -12,6 +12,7 @@ namespace Erl.logic.nominals
         public List<NominalList> cdms = new List<NominalList>();
         public List<SortedDictionary<int, int>> bims = new List<SortedDictionary<int, int>>();
         public NominalList disp = null;
+        
         public RawNdcTransaction(DateTime time, string card, TransactionType type = TransactionType.Client)
         {
             Time = time;
