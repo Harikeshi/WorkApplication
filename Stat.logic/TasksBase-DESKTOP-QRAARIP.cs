@@ -13,7 +13,6 @@ namespace Stat.logic
     public class TasksBase
     {
         string path = "";// @"A:\Акты технической экспертизы";
-        List<string> ExceptDirs = new List<string>() { "Архив", "шаблоны" };
 
         // Создать список овнеров
         Dictionary<string, string> workers = new Dictionary<string, string>();
@@ -27,13 +26,7 @@ namespace Stat.logic
             Initialize();
             Count = context.Count;
 
-            Console.WriteLine(Count);
-            foreach (var x in workers)
-            {
-                Console.WriteLine(x);
-            }
         }
-
 
         public void TodayWork()
         {
@@ -66,48 +59,93 @@ namespace Stat.logic
 
         public void ShowLastWeek()
         {
-            //// TODO: сделать оопешно по списку работников
-            //var ssh = StatWeekOfPerson(@"PLC\schegolihin");
-            //var esv = StatWeekOfPerson(@"PLC\ershov");
-            //var sa = StatWeekOfPerson(@"PLC\safronov");
-            //// Dictionary
-            //Dictionary<List<DateQuantities>, int> lst = new Dictionary<List<DateQuantities>, int>();
+            List<List<DateQuantities>> WorkerWork = new List<List<DateQuantities>>();
+            var Totals = new List<int>();
 
-            //foreach (var item in workers)
-            //{
-            //    lst.Add(StatWeekOfPerson(@"PLC\" + item), 0);
-            //}
+            // Header
+            Console.Write(new string(' ', 20));
+            foreach (var w in workers)
+            {
+                var lst = new List<DateQuantities>();
+                Totals.Add(StatWeekOfPerson(w.Value, ref lst));
 
-            //// Header
-            //Console.Write(new string(' ', 20));
-            //foreach (var item in workers)
-            //{
-            //    Console.Write("{0, 3}", item);
-            //}
-            //Console.WriteLine();
+                WorkerWork.Add(lst);
+                Console.Write("{0,3} ", w.Key.Substring(0, 2));
+            }
+            Console.WriteLine();
 
-            //for(int i = 0; i< lst[0].Count; ++i)
-            //{
-            //    foreach(var item in lst)
-            //    {
-            //        item[i].Date + ": " + "{0}"
-            //    }
-            //}
+            // Body
+            for (int i = 0; i < WorkerWork[0].Count; ++i)
+            {
+                Console.Write(WorkerWork[0][i].Date + ": ");
+                for (int j = 0; j < WorkerWork.Count; ++j)
+                {
+                    Console.Write("{0,3} ", WorkerWork[j][i].Quantity);
+                }
+                Console.WriteLine();
+            }
+            // Total:
+            Console.Write("Total" + new string(' ', 13) + ": ");
 
+            foreach (var w in Totals)
+            {
+                Console.Write("{0,3} ", w);
+            }
+
+            Console.WriteLine();
         }
 
+        private int StatWeekOfPerson(string owner, ref List<DateQuantities> days)
+        {
+            days = GetDaysOfLastWeek();
 
+            int value = 0;
+            foreach (var item in days)
+            {
+                for (int i = 0; i < context.Count; i++)
+                {
+                    if (item.Date > context[i].Time.Date) continue;
+                    else if (item.Date < context[i].Time.Date) break;
+                    if (context[i].owner == owner)
+                        item.Quantity++;
+                }
+                value += item.Quantity;
+            }
 
+            return value;
+        }
+        private List<DateQuantities> GetDaysOfLastWeek()
+        {
+            var lst = new List<DateQuantities>();
+            for (int i = -7; i < 0; i++)
+            {
+                lst.Add(new DateQuantities { Date = DateTime.Today.AddDays(i), Quantity = 0 });
+            }
+
+            return lst;
+        }
 
         private void Initialize()
         {
-            GetAllDirectories(path, context);
+            GetAllDirectories(path);
 
+            InitializeWorkers();
         }
 
-        private void GetAllDirectories(string path, List<TaskInfo> context)
+        private void InitializeWorkers()
         {
+            foreach (var item in context)
+            {
+                var acc = item.owner.Split('\\')[1];
+                if (!workers.ContainsKey(acc))
+                {
+                    workers.Add(acc, item.owner);
+                }
+            }
+        }
 
+        private void GetAllDirectories(string path)
+        {
             var d = Directory.GetDirectories(path);
 
             ConcurrentQueue<string> listFiles = new ConcurrentQueue<string>();
@@ -120,47 +158,19 @@ namespace Stat.logic
             Parallel.ForEach(listFiles, (item =>
             {
                 DirectoryInfo di = new DirectoryInfo(item);
-                if ((di.Name[0] >= '0' && di.Name[0] <= '9') == false)
+                if (di.Name[0] < '0' || di.Name[0] > '9')
                 {
-                    bool fits = true;
-                    foreach (var e in ExceptDirs)
-                    {
-                        if (di.Name == e)
-                        {
-                            fits = false;
-                            break;
-                        }
-                    }
-                    if (fits) GetAllDirectories(item, context);
+                    if (di.Name != "Архив" || di.Name != "шаблоны")
+                        GetAllDirectories(item);
                 }
                 else
                 {
-                    var acc = di.GetAccessControl().GetOwner(typeof(NTAccount)).Value.Split('\\')[1];
-                    if (!workers.ContainsKey(acc))
-                    {
-                        workers.Add(acc, "");
-                    }
+                    var facc = di.GetAccessControl().GetOwner(typeof(NTAccount)).Value;
+                    var acc = facc.Split('\\')[1];
 
-                    context.Add(new TaskInfo(acc, di.CreationTime, di.FullName.Split('\\')[2]));
+                    context.Add(new TaskInfo(facc, di.CreationTime, di.FullName.Split('\\')[2]));
                 }
             }));
-        }
-
-        private List<DateQuantities> StatWeekOfPerson(string owner)
-        {
-            var days = GetDaysOfLastWeek();
-            return null;
-        }
-
-        private List<DateQuantities> GetDaysOfLastWeek()
-        {
-            List<DateQuantities> lst = new List<DateQuantities>();
-            for (int i = -7; i < 0; ++i)
-            {
-                lst.Add(new DateQuantities { Date = DateTime.Today.AddDays(i), Quantity = 0 });
-            }
-
-            return lst;
         }
 
         private Dictionary<string, int> GetWorkersStat(DateTime start, DateTime end)
@@ -196,12 +206,9 @@ namespace Stat.logic
         // Топ самых проблемных атм
         // Создать сортированный список из атм
 
-        internal class AtmDateQuantities
-        {
-            public string Name { get; set; }
-            Dictionary<DateTime, int> DayQuantities { get; set; }
-        }
 
+
+        // По каждому банкомату день - количество
         SortedDictionary<string, SortedDictionary<DateTime, int>> xx(DateTime start, DateTime end)
         {
             // atm - Dictionary<date, quantities>
@@ -229,19 +236,11 @@ namespace Stat.logic
             return atms;
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        internal class AtmDateQuantities
+        {
+            public string Name { get; set; }
+            Dictionary<DateTime, int> DayQuantities { get; set; }
+        }
 
         public class WorkerStat
         {
@@ -251,11 +250,13 @@ namespace Stat.logic
             public DateTime Date { get; set; }
             public int Quantity { get; set; }
         }
+
         public class DateQuantities
         {
             public DateTime Date { get; set; }
             public int Quantity { get; set; }
         }
+
         public class AtmStat
         {
             public string Name { get; set; }
