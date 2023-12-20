@@ -22,7 +22,7 @@ namespace Work.test
             Console.OutputEncoding = Encoding.UTF8;
 
             string actual = @"c:\Users\sshch\OneDrive\VisualStudio\WorkApplication\";
-
+            string dirs = @"d:\temp\dirs\";
             string path_in = actual + "ej.txt";
             string path_out = actual + "excel.xlsx";
             string epath_in = actual;
@@ -37,12 +37,10 @@ namespace Work.test
 
             //Process.Start("microsoft-edge:http://www.bing.com");
 
-            string dirs = @"d:\temp\dirs";
-
             TasksBase tb = new TasksBase(dirs);
 
-            tb.ShowTodayWork();
-            
+            tb.TodayWork();
+            tb.ShowLastWeek();
 
 
         }
@@ -56,7 +54,5 @@ namespace Work.test
                 System.Console.WriteLine("OK");
             }
         }
-
-
     }
 }

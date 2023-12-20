@@ -2,6 +2,7 @@
 using EJ.logic.ej_get;
 using EJ.logic.ej_xlsx;
 using Erl.logic.nominals;
+using Stat.logic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -208,46 +209,67 @@ namespace Wpf.GUI
 
         private void ChartsButton_Click(object sender, RoutedEventArgs e)
         {
-            InfoBox.Children.OfType<Canvas>().ToList().ForEach(p => InfoBox.Children.Remove(p));
+            string dirs = @"d:\temp\dirs";
+            //InfoBox.
+            TasksBase tb = new TasksBase(dirs);
 
-            Chart chart = null;
+            var res = tb.ListOfLastWeek();
 
-            Button button = sender as Button;
+            InfoBox.Text = "" ;
 
-            // Создаём новый график выбранного вида.
-            switch (button.Name)
+            foreach ( var item in res )
             {
-                case "BarsButton":
-                    if ((chart is BarChart) == false)
-                    {
-                        chart = new BarChart();
-                    }
-
-                    break;
-                case "LineButton":
-                    if ((chart is LineChart) == false)
-                    {
-                        chart = new LineChart();
-                    }
-
-                    break;
-                case "PieButton":
-                    if ((chart is PieChart) == false)
-                    {
-                        chart = new PieChart();
-                    }
-
-                    break;
+                InfoBox.Text += item;
             }
 
-            // Добавляем новую диаграмму на поле контейнера для графиков.
-            InfoBox.Children.Add(chart.ChartBackground);
+            var lst = tb.ListOfTodayWork();
 
-            // Принудительно обновляем размеры контейнера для графика.
-            InfoBox.UpdateLayout();
+            foreach ( var item in lst)
+            {
+                InfoBox.Text += item;
+            }
 
-            // Создаём график.
-            CreateChart(chart);
+
+            //InfoBox.Children.OfType<Canvas>().ToList().ForEach(p => InfoBox.Children.Remove(p));
+
+            //Chart chart = null;
+
+            //Button button = sender as Button;
+
+            //// Создаём новый график выбранного вида.
+            //switch (button.Name)
+            //{
+            //    case "BarsButton":
+            //        if ((chart is BarChart) == false)
+            //        {
+            //            chart = new BarChart();
+            //        }
+
+            //        break;
+            //    case "LineButton":
+            //        if ((chart is LineChart) == false)
+            //        {
+            //            chart = new LineChart();
+            //        }
+
+            //        break;
+            //    case "PieButton":
+            //        if ((chart is PieChart) == false)
+            //        {
+            //            chart = new PieChart();
+            //        }
+
+            //        break;
+            //}
+
+            //// Добавляем новую диаграмму на поле контейнера для графиков.
+            //InfoBox.Children.Add(chart.ChartBackground);
+
+            //// Принудительно обновляем размеры контейнера для графика.
+            //InfoBox.UpdateLayout();
+
+            //// Создаём график.
+            //CreateChart(chart);
         }
         private static void CreateChart(Chart chart)
         {

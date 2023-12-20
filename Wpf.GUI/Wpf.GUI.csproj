@@ -109,6 +109,10 @@
       <Project>{1f71d7f3-eb5e-417e-9427-34ea4f4a1151}</Project>
       <Name>Erl.logic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Stat.logic\Stat.logic.csproj">
+      <Project>{137cdaf8-99c5-4bd8-b247-6e2aaf172529}</Project>
+      <Name>Stat.logic</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
