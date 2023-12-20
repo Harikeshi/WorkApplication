@@ -1,5 +1,4 @@
-﻿using Charts;
-using EJ.logic.ej_get;
+﻿using EJ.logic.ej_get;
 using EJ.logic.ej_xlsx;
 using Erl.logic.nominals;
 using Stat.logic;
@@ -8,19 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Wpf.GUI
 {
@@ -271,17 +259,6 @@ namespace Wpf.GUI
 
             //// Создаём график.
             //CreateChart(chart);
-        }
-        private static void CreateChart(Chart chart)
-        {
-            chart.Clear();
-
-            Random random = new Random();
-
-            for (int i = 0; i < random.Next(1, 25); i++)
-            {
-                chart.AddValue(random.Next(0, 2001));
-            }
-        }
+        }       
     }
 }
