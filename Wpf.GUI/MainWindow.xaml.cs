@@ -174,6 +174,7 @@ namespace Wpf.GUI
             {
                 MessageBox.Show(ex.Message + "\nФайл ej.txt не был создан.");
             }
+
             return false;
         }
         private void EjGenerateCountsButton(object sender, RoutedEventArgs e)
