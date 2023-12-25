@@ -23,11 +23,14 @@ namespace Wpf.GUI
         //readonly string path = @"C:\Users\schegolihin\Documents\Задания";
         //readonly string excel_from = @"c:\Users\schegolihin\Documents\Задания"; // Откуда
         //readonly string excel_to = @"c:\Users\schegolihin\Documents\Задания"; // Куда
+        //readonly string acts_from = @"A:\Акты технической экспертизы\";
+
 
         //Home
         readonly string path = @"d:\Projects\work\actual"; // Home
         readonly string excel_from = @"d:\Projects\work\actual"; // Home
         readonly string excel_to = @"d:\Projects\work\actual"; // Home
+        readonly string acts_from = @"d:\temp\dirs";
 
         readonly string erlp = @"\erl.xlsx";
         readonly string ejp = @"\ej.txt";
@@ -198,9 +201,8 @@ namespace Wpf.GUI
 
         private void ChartsButton_Click(object sender, RoutedEventArgs e)
         {
-            string dirs = @"d:\temp\dirs";
             //InfoBox.
-            TasksBase tb = new TasksBase(dirs);
+            TasksBase tb = new TasksBase(acts_from, path);
 
             var res = tb.ListOfLastWeek();
 
@@ -210,55 +212,14 @@ namespace Wpf.GUI
             {
                 InfoBox.Text += item;
             }
-
+           
             var lst = tb.ListOfTodayWork();
 
             foreach ( var item in lst)
             {
                 InfoBox.Text += item;
             }
-
-
-            //InfoBox.Children.OfType<Canvas>().ToList().ForEach(p => InfoBox.Children.Remove(p));
-
-            //Chart chart = null;
-
-            //Button button = sender as Button;
-
-            //// Создаём новый график выбранного вида.
-            //switch (button.Name)
-            //{
-            //    case "BarsButton":
-            //        if ((chart is BarChart) == false)
-            //        {
-            //            chart = new BarChart();
-            //        }
-
-            //        break;
-            //    case "LineButton":
-            //        if ((chart is LineChart) == false)
-            //        {
-            //            chart = new LineChart();
-            //        }
-
-            //        break;
-            //    case "PieButton":
-            //        if ((chart is PieChart) == false)
-            //        {
-            //            chart = new PieChart();
-            //        }
-
-            //        break;
-            //}
-
-            //// Добавляем новую диаграмму на поле контейнера для графиков.
-            //InfoBox.Children.Add(chart.ChartBackground);
-
-            //// Принудительно обновляем размеры контейнера для графика.
-            //InfoBox.UpdateLayout();
-
-            //// Создаём график.
-            //CreateChart(chart);
+          
         }       
     }
 }

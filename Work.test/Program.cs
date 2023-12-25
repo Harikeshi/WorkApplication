@@ -39,7 +39,10 @@ namespace Work.test
 
             string dirs = @"d:\temp\dirs";
 
-            TasksBase tb = new TasksBase(dirs);
+            TasksBase tb = new TasksBase(dirs, dirs);
+
+
+
 
             tb.ShowTodayWork();
             

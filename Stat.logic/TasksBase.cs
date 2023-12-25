@@ -11,14 +11,14 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using static OfficeOpenXml.ExcelErrorValue;
+//using static OfficeOpenXml.ExcelErrorValue;
 
 namespace Stat.logic
 {
     public class TasksBase
     {
-        string path = "";// @"A:\Акты технической экспертизы";
-        string outputdir = @"d:\temp\dirs";
+        readonly string path;
+        readonly string out_path;
 
         List<string> ExceptDirs = new List<string>() { "Архив", "шаблоны" };
 
@@ -28,9 +28,10 @@ namespace Stat.logic
 
         public int Count { get; set; }
 
-        public TasksBase(string path = @"A:\Акты технической экспертизы\")
+        public TasksBase(string path, string o_path)
         {
             this.path = path;
+            this.out_path = o_path;
             Initialize();
 
             //GetAllOwnerDirs("sshch");
@@ -44,67 +45,7 @@ namespace Stat.logic
                     workers.Add(c.owner, "");
         }
 
-        private void SaveExcelFile()
-        {
-            List<string> months = new List<string>{ "jan", "feb", "mar","apr","may","jun","jul",
-            "aug", "sep", "oct", "nov", "dec"};
-
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-
-            string tableRange = "A1:" + (char)('A' + months.Count) + (char)('1' + workers.Count);
-
-            ExcelPackage package = new ExcelPackage();
-            ExcelWorksheet sheet = package.Workbook.Worksheets.Add("Sheet1");
-            ExcelTable table = sheet.Tables.Add(sheet.Cells[tableRange], "Example");
-
-            for (int i = 0; i < months.Count; ++i)
-                table.Columns[i].Name = months[i];
-
-            // Количество строк workers +1
-            int firstDataRowIndex = 2; // first row with data
-            int c = firstDataRowIndex;
-            foreach (var w in workers)
-            {
-                // берем каждого работника и по нему добавляем по столбцам.
-                sheet.Cells["A" + c.ToString()].Value = w.Key;
-                ++c;
-            }
-
-            sheet.Cells["A" + (2 + workers.Count).ToString()].Value = "Сумма";
-            var stat = YearsStatistic();
-            int number = firstDataRowIndex;
-            foreach (var s in stat)
-            {
-                foreach (var w in s.Value)
-                    sheet.Cells[(char)('B' + w.Key) + number.ToString()].Value = w.Value;
-                number++;
-            }
-
-            // Chart
-            OfficeOpenXml.Drawing.Chart.ExcelChart chart = sheet.Drawings.AddChart("example", eChartType.ColumnClustered);
-
-            // Размеры окна, настройки осей
-            chart.XAxis.Title.Text = "Quantity";
-            chart.XAxis.Title.Font.Size = 10;
-            chart.YAxis.Title.Text = "Worker";
-            chart.YAxis.Title.Font.Size = 10;
-            chart.SetSize(500, 300);
-            chart.SetPosition(0, 0, 4, 0);
-
-            string xValuesRange = "A1:M1"; //
-            for (int i = 2; i <= workers.Count + 2; ++i)
-            {
-
-                var series = chart.Series.Add("B" + i.ToString() + ":M" + i.ToString(), xValuesRange);
-                series.Header = sheet.Cells["A" + i.ToString()].Value.ToString(); // Series title
-            }
-            chart.Legend.Position = eLegendPosition.Right;
-
-            //automatically adjust columns width to text
-
-            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
-            package.SaveAs(new FileInfo(Path.Combine(outputdir, "example.xlsx")));
-        }
+        
 
         public void ShowTodayWork()
         {
@@ -150,23 +91,28 @@ namespace Stat.logic
         {
             // dict{person - list{dayqua}}
             Dictionary<string, List<DateQuantities>> result = new Dictionary<string, List<DateQuantities>>();
-
+			
             foreach (var w in workers)
             {
                 result.Add(w.Key, GetDaysOfLastWeek());
             }
-
+			
+			var days = GetDaysOfLastWeek();
+			
             foreach (var c in content)
             {
-                if (c.Time >= result.First().Value[0].Date && c.Time <= result.First().Value[result.First().Value.Count - 1].Date)
-                    for (int i = 0; i < result.First().Value.Count; ++i)
-                    {
-                        if (c.Time == result.First().Value[i].Date)
+                if (c.Time.Date >= days[0].Date && c.Time.Date <= days[days.Count - 1].Date){
+                    	
+					for (int i = 0; i < days.Count; ++i)
+                    {	
+                        if (c.Time.Date == days[i].Date)
                         {
                             result[c.owner][i].Quantity++;
                         }
                     }
+				}
             }
+			
             return result;
         }
 
@@ -180,71 +126,41 @@ namespace Stat.logic
             first += new string(' ', 20);
             foreach (var item in workers)
             {
-                first += item.Key.Substring(0, 3);
+                first += string.Format(" {0,3}", item.Key.Substring(0, 2));
             }
             lst.Add(first + "\n");
 
             // body
             List<int> total = new List<int>(new int[workers.Count]);
 
-            foreach (var s in stat.First().Value)
+			var days = GetDaysOfLastWeek();
+            for(int i =0; i < days.Count; ++i)
             {
-                first = s.Date.ToString() + ":";
-                int i = 0;
+                first = days[i].Date.ToShortDateString() + ":";
+                int j = 0;
                 foreach (var d in stat)
                 {
-                    first += " " + d.Value[i].Quantity;
-                    total[i] += d.Value[i].Quantity;
-                    i++;
+                    first += string.Format(" {0, 3}", d.Value[i].Quantity);
+                    total[j] += d.Value[i].Quantity;
+					j++;
                 }
-                lst.Add(first + "\n");
-
+				lst.Add(first + "\n");                
             }
-
+           
             // feeter
-            first = "Total:";
+            first = "Total"+ new string(' ', 8) + ":";
             foreach (var t in total)
             {
-                first += t;
+                first += string.Format(" {0,3}",t);
             }
             lst.Add(first + "\n");
             return lst;
         }
         public void ShowLastWeek()
         {
-            var stat = GetStatLastWeek();
-            List<string> lst = new List<string>();
-
-            // header
-            Console.Write(new string(' ', 20));
-            foreach (var item in workers)
-            {
-                Console.Write("{0, 3}", item.Key.Substring(0, 3));
-            }
-            Console.WriteLine();
-            // body
-            List<int> total = new List<int>(new int[workers.Count]);
-
-            foreach (var s in stat.First().Value)
-            {
-                Console.Write(s.Date.ToString() + ":");
-                int i = 0;
-                foreach (var d in stat)
-                {
-                    Console.Write(" " + d.Value[i].Quantity);
-                    total[i] += d.Value[i].Quantity;
-                    i++;
-                }
-                Console.WriteLine();
-
-            }
-            // feeter
-            Console.Write("Total:");
-            foreach (var t in total)
-            {
-                Console.Write(t);
-            }
-            Console.WriteLine();
+            var lst = ListOfLastWeek();
+            foreach(var i in lst)
+            Console.Write(i);         
         }
 
         public void GetAllOwnerDirs(string owner)
@@ -279,16 +195,10 @@ namespace Stat.logic
                 DirectoryInfo di = new DirectoryInfo(item);
                 if ((di.Name[0] >= '0' && di.Name[0] <= '9') == false)
                 {
-                    bool fits = true;
-                    foreach (var e in ExceptDirs)
-                    {
-                        if (di.Name == e)
-                        {
-                            fits = false;
-                            break;
-                        }
-                    }
-                    if (fits) GetAllDirectories(item);
+                    if(di.Name != "Архив" || di.Name != "шаблоны")
+						{				
+							GetAllDirectories(item);	
+						}	
                 }
                 else
                 {
@@ -434,7 +344,68 @@ namespace Stat.logic
 
             return atms;
         }
+         private void SaveExcelFile()
+        {
+            List<string> months = new List<string>{ "jan", "feb", "mar","apr","may","jun","jul",
+            "aug", "sep", "oct", "nov", "dec"};
 
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            string tableRange = "A1:" + (char)('A' + months.Count) + (char)('1' + workers.Count); 
+
+            ExcelPackage package = new ExcelPackage();
+            ExcelWorksheet sheet = package.Workbook.Worksheets.Add("Sheet1");
+            ExcelTable table = sheet.Tables.Add(sheet.Cells[tableRange], "Example");
+
+            table.Columns[0].Name = "/";
+            for (int i = 0, j =1; i < months.Count; ++i,++j)
+                table.Columns[j].Name = months[i];
+
+            // Количество строк workers +1
+            int firstDataRowIndex = 2; // first row with data
+            int c = firstDataRowIndex;
+            foreach (var w in workers)
+            {
+                // берем каждого работника и по нему добавляем по столбцам.
+                sheet.Cells["A" + c.ToString()].Value = w.Key;
+                ++c;
+            }
+
+            sheet.Cells["A" + (2 + workers.Count).ToString()].Value = "Сумма";
+            var stat = YearsStatistic();
+            int number = firstDataRowIndex;
+            foreach (var s in stat)
+            {
+                foreach (var w in s.Value)
+                    sheet.Cells[(char)('B' + w.Key) + number.ToString()].Value = w.Value;
+                number++;
+            }
+
+            // Chart
+            OfficeOpenXml.Drawing.Chart.ExcelChart chart = sheet.Drawings.AddChart("example", eChartType.ColumnClustered);
+
+            // Размеры окна, настройки осей
+            chart.XAxis.Title.Text = "Месяц";
+            chart.XAxis.Title.Font.Size = 10;
+            chart.YAxis.Title.Text = "Количество";
+            chart.YAxis.Title.Font.Size = 10;
+            chart.SetSize(500, 300);
+            chart.SetPosition(0, 0, 4, 0);
+
+            string xValuesRange = "A1:M1"; //
+            for (int i = 2; i <= workers.Count + 2; ++i)
+            {
+
+                var series = chart.Series.Add("B" + i.ToString() + ":M" + i.ToString(), xValuesRange);
+                series.Header = sheet.Cells["A" + i.ToString()].Value.ToString(); // Series title
+            }
+            chart.Legend.Position = eLegendPosition.Right;
+
+            //automatically adjust columns width to text
+
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+            package.SaveAs(new FileInfo(Path.Combine(out_path, "example.xlsx")));
+        }
 
         public class WorkerStat
         {
