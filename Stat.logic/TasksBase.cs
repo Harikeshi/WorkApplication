@@ -101,11 +101,11 @@ namespace Stat.logic
 
         private void Initialize()
         {
-            GetAllDirectories(path, context);
+            GetAllDirectories(path);
 
         }
 
-        private void GetAllDirectories(string path, List<TaskInfo> context)
+        private void GetAllDirectories(string path)
         {
 
             var d = Directory.GetDirectories(path);

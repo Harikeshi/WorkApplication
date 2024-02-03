@@ -139,7 +139,6 @@ namespace EJ.logic.ej_xlsx.pre_ej
                         Operators[i].Type = OperatorType.Atm;
                     }
                 }
-
             }
             return other;
         }
