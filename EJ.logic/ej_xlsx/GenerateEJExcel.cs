@@ -6,7 +6,9 @@ namespace EJ.logic.ej_xlsx
     {         
         public GenerateEJExcel(string path_in, string path_out, string disp, string depo )
         {
+            // Формируем Журнал операций
             RawEJournal ej = new RawEJournal(path_in);
+
 
             StructureForExcel ejc = new StructureForExcel(ej, disp, depo);
 

@@ -16,22 +16,25 @@ namespace EJ.logic.ej_xlsx.pre_excel
         }
         public ExcelOperations(List<ExcelString> lines)
         {
-            
+
             ExcelDay day = new ExcelDay();
             int i = 0;
-            this.Add(lines[i]);
-            Times.Add(lines[i].Time);
-            ++i;
-
-            for (; i < lines.Count; ++i)
+            if (lines.Count > 0)
             {
-                if (lines[i].Number < lines[i - 1].Number)
-                {
-                    Times.Add(lines[i].Time);
-                }
                 this.Add(lines[i]);
+                Times.Add(lines[i].Time);
+                ++i;
+
+                for (; i < lines.Count; ++i)
+                {
+                    if (lines[i].Number < lines[i - 1].Number)
+                    {
+                        Times.Add(lines[i].Time);
+                    }
+                    this.Add(lines[i]);
+                }
+                Times.Add(lines[i - 1].Time);
             }
-            Times.Add(lines[i - 1].Time);
         }
     }
 }

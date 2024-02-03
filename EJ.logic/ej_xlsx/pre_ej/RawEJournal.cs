@@ -77,7 +77,108 @@ namespace EJ.logic.ej_xlsx.pre_ej
             var strings = File.ReadAllLines(path).ToList();
 
             // Клиенты
-            List<string> lines = new List<string>();
+            List<string> lines = MakeClients(strings); // Остаток после операций
+
+            // Балансы
+            lines = MakeBalanses(lines);
+
+            // Операторы
+            lines = MakeOperators(lines);
+        }
+
+        private List<string> MakeOperators(List<string> strings)
+        {
+            List<string> other = new List<string>();
+
+            List<int> NoNominalsList = new List<int>();
+            for (int j = 0; j < strings.Count; ++j)
+            {
+                if (Regex.IsMatch(strings[j], start_op_session))
+                {
+                    RawOperation op = new RawOperation();
+                    op.Type = OperationType.Operator;
+                    op.Add(strings[j]);
+                    ++j;
+                    while (j < strings.Count)
+                    {
+                        if (Regex.IsMatch(strings[j], start_op_session))
+                        {
+                            --j;
+                            break;
+                        }
+                        op.Add(strings[j]);
+                        ++j;
+                    }
+                    //if (op.Size() != 0)
+
+                    // TODO: набирать op и запоминать в котором нет полного списка номиналов и когда список сформируется в каком либо, заполнить списки этих
+                    operators.Add(op);
+                    var oper = InitializeOperator(op.GetLines());
+                   
+                    if (oper.Nominals.Count < 4)
+                    {
+                        NoNominalsList.Add(operators.Count - 1);
+                        Console.WriteLine("Operators[" + (operators.Count - 1) + "].Nominal.Counts = " + oper.Nominals.Count + "(4)");
+                    }
+                    else
+                    {
+                        foreach (int i in NoNominalsList)
+                        {
+                            Operators[i].Nominals = oper.Nominals;
+                            Operators[i].Type = OperatorType.Atm;
+                        }
+                    }
+                    Operators.Add(oper);
+                }
+                else other.Add(strings[j]);
+                if (NoNominalsList.Count > 0 && Operators[0].Type != OperatorType.Terminal)
+                {
+                    foreach (int i in NoNominalsList)
+                    {
+                        Operators[i].Nominals = Operators[0].Nominals;
+                        Operators[i].Type = OperatorType.Atm;
+                    }
+                }
+
+            }
+            return other;
+        }
+
+        private List<string> MakeBalanses(List<string> lines)
+        {
+            List<string> strings = new List<string>();
+            for (int j = 0; j < lines.Count; ++j)
+            {
+                if (Regex.IsMatch(lines[j], start_balance))
+                {
+                    RawOperation op = new RawOperation();
+                    op.Type = OperationType.Balance;
+                    op.Add(lines[j]);
+                    ++j;
+                    while (j < lines.Count)
+                    {
+                        if (Regex.IsMatch(lines[j], start_balance) || Regex.IsMatch(lines[j], start_op_session))
+                        {
+                            --j;
+                            break;
+                        }
+
+                        op.Add(lines[j]);
+                        ++j;
+                    }
+                    // TODO: Добавить обработку.
+                    balances.Add(op);
+                }
+                if (j < lines.Count)
+                    strings.Add(lines[j]);
+            }
+
+            return strings;
+        }
+
+        private List<string> MakeClients(List<string> strings)
+        {
+            List<string> lines = new List<string>(); // Остаток
             for (int j = 0; j < strings.Count; ++j)
             {
                 if (Regex.IsMatch(strings[j], start_client))
@@ -104,7 +205,6 @@ namespace EJ.logic.ej_xlsx.pre_ej
                         Console.Write("[~" + j + "]Clients[" + (Clients.Count - 1) + "].Time = " + cl.Time);
                         if (cl.Parts.Count > 0)
                         {
-
                             cl.Time = cl.Parts.Last().Time;
                         }
                         else
@@ -126,92 +226,20 @@ namespace EJ.logic.ej_xlsx.pre_ej
                     //if ((strings[j][0] >= 'А' && strings[j][0] <= 'Я') || strings[j][0] == ' ')
                     lines.Add(strings[j]);
             }
-            // Балансы
-            strings = new List<string>();
-            for (int j = 0; j < lines.Count; ++j)
-            {
-                if (Regex.IsMatch(lines[j], start_balance))
-                {
-                    RawOperation op = new RawOperation();
-                    op.Type = OperationType.Balance;
-                    op.Add(lines[j]);
-                    ++j;
-                    while (j < lines.Count)
-                    {
-                        if (Regex.IsMatch(lines[j], start_balance) || Regex.IsMatch(lines[j], start_op_session))
-                        {
-                            --j;
-                            break;
-                        }
 
-                        op.Add(lines[j]);
-                        ++j;
-                    }
-                    // TODO: Добавить обработку.
-                    balances.Add(op);
-                }
-                if (j < lines.Count)
-                    strings.Add(lines[j]);
-            }
-            // Операторы
-            List<int> NoNominalsList = new List<int>();
-            for (int j = 0; j < strings.Count; ++j)
-            {
-                if (Regex.IsMatch(strings[j], start_op_session))
-                {
-                    RawOperation op = new RawOperation();
-                    op.Type = OperationType.Operator;
-                    op.Add(strings[j]);
-                    ++j;
-                    while (j < strings.Count)
-                    {
-                        if (Regex.IsMatch(strings[j], start_op_session))
-                        {
-                            --j;
-                            break;
-                        }
-                        op.Add(strings[j]);
-                        ++j;
-                    }
-                    //if (op.Size() != 0)
-
-                    // TODO: набирать op и запоминать в котором нет полного списка номиналов и когда список сформируется в каком либо, заполнить списки этих
-                    operators.Add(op);
-                    var oper = InitializeOperator(op.GetLines());
-                    if (oper.Nominals.Count < 4)
-                    {
-                        NoNominalsList.Add(operators.Count - 1);
-                        Console.WriteLine("Operators[" + (operators.Count - 1) + "].Nominal.Counts = " + oper.Nominals.Count + "(4)");
-                    }
-                    else
-                    {
-                        foreach (int i in NoNominalsList)
-                        {
-                            Operators[i].Nominals = oper.Nominals;
-                            Operators[i].Type = OperatorType.Atm;
-                        }
-                    }
-                    Operators.Add(oper);
-                }
-                if (NoNominalsList.Count > 0 && Operators[0].Type != OperatorType.Terminal)
-                {
-                    foreach (int i in NoNominalsList)
-                    {
-                        Operators[i].Nominals = Operators[0].Nominals;
-                        Operators[i].Type = OperatorType.Atm;
-                    }
-                }
-            }
+            return lines;
         }
+
         private string MsgFilter(List<string> msg, Part p)
         {
-            string result = String.Empty;
+            string result = null;
             for (int i = 0; i < p.Comments.Count(); ++i)
             {
                 foreach (string m in msg)
                 {
                     if (Regex.IsMatch(p.Comments[i], m))
                     {
+                        if (result == null) result = String.Empty;
                         result += m.Trim() + ", ";
                     }
                 }
@@ -222,6 +250,7 @@ namespace EJ.logic.ej_xlsx.pre_ej
             }
             return result;
         }
+
         private Client InitializeClient(List<string> strings)
         {
             Client client = new Client();
@@ -235,9 +264,13 @@ namespace EJ.logic.ej_xlsx.pre_ej
             {
                 i = 0;
                 Part p = new Part();
-                p.Time = client.Time;
                 InitPart(ref i, strings, ref client, ref p);
-                p.Comments = new List<string> { MsgFilter(p.Type == Part.PartType.Dispense ? DispenseMsg : DepositMsg, p) };
+
+                string comm = MsgFilter(p.Type == Part.PartType.Dispense ? DispenseMsg : DepositMsg, p);
+                p.Comments = new List<string>();
+                if (comm != null) p.Comments.Add(comm);
+
+                p.Time = client.Time;
                 client.Parts.Add(p);
             }
             // TODO: До конца транзакции набираем список
@@ -248,7 +281,10 @@ namespace EJ.logic.ej_xlsx.pre_ej
                 MakeTimeAndNumber(ref i, ref p, strings);
                 InitPart(ref i, strings, ref client, ref p);
 
-                p.Comments = new List<string> { MsgFilter(p.Type == Part.PartType.Dispense ? DispenseMsg : DepositMsg, p) };
+                string comm = MsgFilter(p.Type == Part.PartType.Dispense ? DispenseMsg : DepositMsg, p);
+                p.Comments = new List<string>();
+                if (comm != null) p.Comments.Add(comm);
+
                 client.Parts.Add(p);
                 ++i;
             }

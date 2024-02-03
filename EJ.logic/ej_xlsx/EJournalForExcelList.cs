@@ -12,7 +12,7 @@ namespace EJ.logic.ej_xlsx
 
             bool disp = true;
             bool depo = true;
-            foreach (var item in client.Days)
+            foreach (var item in client.GetDays())
             {
                 if (item.ej_di.Count > 0 || item.exc_di.Count > 0)
                 {

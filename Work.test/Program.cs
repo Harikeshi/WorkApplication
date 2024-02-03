@@ -1,4 +1,6 @@
 ﻿using EJ.logic.ej_xlsx;
+using EJ.logic.ej_xlsx.pre_ej;
+using EJ.logic;
 using Erl.logic.nominals;
 using Stat.logic;
 using System;
@@ -31,7 +33,12 @@ namespace Work.test
             string dep = actual + "depo.xlsx";
             string dis = actual + "disp.xlsx";
 
-            //EJGenerateTest(path_in, path_out, dep, dis);
+            // EJ чтобы отображались все транзакции в эксель
+            // брать по датам и делить если есть опер день
+            
+            EJGenerateTest(path_in, path_out, dep, dis);
+
+            
 
             //GenerateErlExcel exl = new GenerateErlExcel(epath_in, epath_out);
 

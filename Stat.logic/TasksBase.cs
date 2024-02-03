@@ -122,16 +122,10 @@ namespace Stat.logic
                 DirectoryInfo di = new DirectoryInfo(item);
                 if ((di.Name[0] >= '0' && di.Name[0] <= '9') == false)
                 {
-                    bool fits = true;
-                    foreach (var e in ExceptDirs)
-                    {
-                        if (di.Name == e)
-                        {
-                            fits = false;
-                            break;
-                        }
-                    }
-                    if (fits) GetAllDirectories(item, context);
+                    if(di.Name != "Архив" && di.Name != "шаблоны")
+						{				
+							GetAllDirectories(item);	
+						}	
                 }
                 else
                 {

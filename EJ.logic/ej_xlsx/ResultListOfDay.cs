@@ -48,7 +48,7 @@ namespace EJ.logic.ej_xlsx
                         ExcelResultString line = new ExcelResultString
                         {
                             Time = Ej[j].Time.ToString(),
-                            Number = 0,
+                            Number = -1 * Ej[j].Number, // Добавляем минус к номеру если есть
                             Card = Ej[j].Card,
                             Amount1 = 0,
                             Equal = sum,
@@ -107,7 +107,7 @@ namespace EJ.logic.ej_xlsx
                 ExcelResultString line = new ExcelResultString
                 {
                     Time = Ej[j].Time.ToString(),
-                    Number = 0,
+                    Number = -1 * Ej[j].Number, // Добавляем минус к номеру если есть
                     Card = Ej[j].Card,
                     Amount1 = 0,
                     Equal = Ej[j].Sum, //.GetSum(),
