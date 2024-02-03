@@ -1,25 +1,14 @@
-﻿using Charts;
-using EJ.logic.ej_get;
+﻿using EJ.logic.ej_get;
 using EJ.logic.ej_xlsx;
 using Erl.logic.nominals;
+using Stat.logic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Wpf.GUI
 {
@@ -34,11 +23,14 @@ namespace Wpf.GUI
         //readonly string path = @"C:\Users\schegolihin\Documents\Задания";
         //readonly string excel_from = @"c:\Users\schegolihin\Documents\Задания"; // Откуда
         //readonly string excel_to = @"c:\Users\schegolihin\Documents\Задания"; // Куда
+        //readonly string acts_from = @"A:\Акты технической экспертизы\";
+
 
         //Home
         readonly string path = @"d:\Projects\work\actual"; // Home
         readonly string excel_from = @"d:\Projects\work\actual"; // Home
         readonly string excel_to = @"d:\Projects\work\actual"; // Home
+        readonly string acts_from = @"d:\temp\dirs";
 
         readonly string erlp = @"\erl.xlsx";
         readonly string ejp = @"\ej.txt";
@@ -173,6 +165,7 @@ namespace Wpf.GUI
             {
                 MessageBox.Show(ex.Message + "\nФайл ej.txt не был создан.");
             }
+
             return false;
         }
         private void EjGenerateCountsButton(object sender, RoutedEventArgs e)
@@ -208,57 +201,25 @@ namespace Wpf.GUI
 
         private void ChartsButton_Click(object sender, RoutedEventArgs e)
         {
-            InfoBox.Children.OfType<Canvas>().ToList().ForEach(p => InfoBox.Children.Remove(p));
+            //InfoBox.
+            TasksBase tb = new TasksBase(acts_from, path);
 
-            Chart chart = null;
+            var res = tb.ListOfLastWeek();
 
-            Button button = sender as Button;
+            InfoBox.Text = "" ;
 
-            // Создаём новый график выбранного вида.
-            switch (button.Name)
+            foreach ( var item in res )
             {
-                case "BarsButton":
-                    if ((chart is BarChart) == false)
-                    {
-                        chart = new BarChart();
-                    }
-
-                    break;
-                case "LineButton":
-                    if ((chart is LineChart) == false)
-                    {
-                        chart = new LineChart();
-                    }
-
-                    break;
-                case "PieButton":
-                    if ((chart is PieChart) == false)
-                    {
-                        chart = new PieChart();
-                    }
-
-                    break;
+                InfoBox.Text += item;
             }
+           
+            var lst = tb.ListOfTodayWork();
 
-            // Добавляем новую диаграмму на поле контейнера для графиков.
-            InfoBox.Children.Add(chart.ChartBackground);
-
-            // Принудительно обновляем размеры контейнера для графика.
-            InfoBox.UpdateLayout();
-
-            // Создаём график.
-            CreateChart(chart);
-        }
-        private static void CreateChart(Chart chart)
-        {
-            chart.Clear();
-
-            Random random = new Random();
-
-            for (int i = 0; i < random.Next(1, 25); i++)
+            foreach ( var item in lst)
             {
-                chart.AddValue(random.Next(0, 2001));
+                InfoBox.Text += item;
             }
-        }
+          
+        }       
     }
 }

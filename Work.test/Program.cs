@@ -44,9 +44,14 @@ namespace Work.test
 
             //Process.Start("microsoft-edge:http://www.bing.com");
 
-            TasksBase tb = new TasksBase(dirs);
+            string dirs = @"d:\temp\dirs";
 
-            tb.TodayWork();
+            TasksBase tb = new TasksBase(dirs, dirs);
+
+
+
+
+            tb.ShowTodayWork();
             
 
 
@@ -61,5 +66,7 @@ namespace Work.test
                 System.Console.WriteLine("OK");
             }
         }
+
+
     }
 }
