@@ -24,7 +24,7 @@ namespace Erl.logic.nominals
             lines.Add(line);
         }
         public int Count { get { return lines.Count; } }
-        public string Get(int i) { return lines[i]; }
+        public string Get(int i) { /*if (lines.Count < i)*/ return lines[i]; /*else return null;*/ }
     }
 
     class RawNdcTransactionsList : List<RawNdcTransaction>
@@ -51,7 +51,7 @@ namespace Erl.logic.nominals
         int cass_number = 0;
 
         private SortedDictionary<string, UnknownNominal> UnKnowns = new SortedDictionary<string, UnknownNominal>();
-        
+
         public RawNdcTransactionsList(string path)
         {
             var txt = new ErlReader().ReadErlFiles(path);
@@ -67,7 +67,7 @@ namespace Erl.logic.nominals
         {
             foreach (var item in lst)
             {
-                if (Regex.IsMatch(item.Substring(58), pbim))
+                if (item.Length > 58 && Regex.IsMatch(item.Substring(58), pbim))
                 {
                     //BIMSESITEM(SES){dwNoteCode<     8> Nominal<   10000 643> usAcceptedCount<    0> AccL3<    0> AccL2<    0> dwCashInCount<    8>
                     //usUnknownCount<    0> dwRetractCount<    0> dwCashOutCount<    7> CashInL3<   0> CashInL2<   0> fwStatus<0>}
@@ -82,7 +82,7 @@ namespace Erl.logic.nominals
                         if (count > 0)
                             if (UnKnowns.ContainsKey(code))
                             {
-                                UnKnowns[code].Count = count;                                
+                                UnKnowns[code].Count = count;
                             }
                             else
                             {
@@ -110,14 +110,14 @@ namespace Erl.logic.nominals
             // Проходим по строкам, если попадаем на pcard Значит новая транзакция
             foreach (var line in txt)
             {
-                if (Regex.IsMatch(line.Substring(58), pcard))
+                if (Regex.IsMatch(line, pcard))//Regex.IsMatch(line.Substring(58), pcard))
                 {
                     ndc = CreateTransaction(ref lstc, ref lstb, strings);
                     if (ndc != null) this.Add(ndc);
                     strings = new ListType(line);
                     strings.Type = TransactionType.Client;
                 }
-                else if (Regex.IsMatch(line.Substring(58), start_incass))
+                else if (Regex.IsMatch(line, start_incass))//Regex.IsMatch(line.Substring(58), start_incass))
                 {
                     ndc = CreateTransaction(ref lstc, ref lstb, strings);
                     if (ndc != null) this.Add(ndc);
@@ -175,16 +175,17 @@ namespace Erl.logic.nominals
             }
             return tran;
         }
+
         private void InitializeIncass(ref RawNdcTransaction ndc, ListType strings, ref SortedDictionary<int, int> lstb, ref NominalList lstc)
         {
 
             SortedDictionary<int, int> bim = new SortedDictionary<int, int>();
-
+          
             for (int i = 0; i < strings.Count; ++i)
             {
                 // BIMBALITEM(ClSe)< 1>{Nom<      1000 978>
                 // BIMBALITEM\(ClSe\)<\d+>\{Nom<\s{6}\d+ 643>     
-                if (Regex.IsMatch(strings.Get(i).Substring(58), @"BIMBALITEM\(ClSe\)<\d+>\{Nom<\s+\d+ 643>"))
+                if (Regex.IsMatch(strings.Get(i), @"BIMBALITEM\(ClSe\)<\d+>\{Nom<\s+\d+ 643>"))//Regex.IsMatch(strings.Get(i).Substring(58), @"BIMBALITEM\(ClSe\)<\d+>\{Nom<\s+\d+ 643>"))
                 {
                     int temp = i;
                     var match = Regex.Matches(strings.Get(i), @"<.+?>");
@@ -199,7 +200,7 @@ namespace Erl.logic.nominals
                     i = temp;
                 }
                 // Для CDM 
-                else if (Regex.IsMatch(strings.Get(i).Substring(58), for_cdm))
+                else if (Regex.IsMatch(strings.Get(i), for_cdm))//Regex.IsMatch(strings.Get(i).Substring(58), for_cdm))
                 {
                     int temp = i;
                     var time = DateTime.ParseExact(Regex.Match(strings.Get(i), ptime).Value, "yyyyMMdd:HHmmss", CultureInfo.CurrentCulture);
@@ -218,6 +219,7 @@ namespace Erl.logic.nominals
 
             }
             ndc.bims.Add(bim);
+          
             lstb = new SortedDictionary<int, int>();
         }
 
@@ -228,11 +230,11 @@ namespace Erl.logic.nominals
             // Требуется делать возврат на 
             for (int i = strings.Count - 1; i >= 0; --i)
             {
-                if (Regex.IsMatch(strings.Get(i).Substring(58), for_bim))
+                if (Regex.IsMatch(strings.Get(i), for_bim))//Regex.IsMatch(strings.Get(i).Substring(58), for_bim))
                 {
                     // Набираем bim
                     SortedDictionary<int, int> bim = CreateBim(strings, ref i);
-                    
+
                     // Решаем надо ли его добавлять в стек
                     if (lstb == null || IsNoEqualDictionary(ref bim, ref lstb))
                     {
@@ -241,7 +243,7 @@ namespace Erl.logic.nominals
                     }
                 }
                 // Для CDM 
-                else if (Regex.IsMatch(strings.Get(i).Substring(58), for_cdm))
+                else if (Regex.IsMatch(strings.Get(i), for_cdm))//Regex.IsMatch(strings.Get(i).Substring(58), for_cdm))
                 {
                     var time = DateTime.ParseExact(Regex.Match(strings.Get(i), ptime).Value, "yyyyMMdd:HHmmss", CultureInfo.CurrentCulture);
                     NominalList cdm = CreateCdm(strings, ref i, time);
@@ -301,7 +303,7 @@ namespace Erl.logic.nominals
 
             for (int i = strings.Count - 1; i > 0; --i)
             {
-                if (Regex.IsMatch(strings.Get(i).Substring(58), bim_note))
+                if (Regex.IsMatch(strings.Get(i), bim_note))//Regex.IsMatch(strings.Get(i).Substring(58), bim_note))
                 {
                     //BIMNDCNOTE<  0>{nominal<     50000 643> count<  203> dw_note_code<       0>}
                     var match = Regex.Matches(strings.Get(i).Substring(58), @"<.+?>");
@@ -342,7 +344,7 @@ namespace Erl.logic.nominals
             SortedDictionary<int, int> disp = new SortedDictionary<int, int>();
 
             for (int i = 0; i < strings.Count; ++i)
-                if (Regex.IsMatch(strings.Get(i).Substring(58), cdm_note))
+                if (Regex.IsMatch(strings.Get(i), cdm_note))
                 {
                     var match = Regex.Matches(strings.Get(i).Substring(58), @"<.+?>");
                     if (match.Count >= 9)
@@ -356,7 +358,7 @@ namespace Erl.logic.nominals
                         if (!disp.ContainsKey(nom)) disp.Add(nom, count);
                     }
                 }
-                else if (Regex.IsMatch(strings.Get(i).Substring(58), cdm_unit))
+                else if (Regex.IsMatch(strings.Get(i), cdm_unit))
                 {
                     // CDMNDCCASHUNIT<0>{wCuType<4,RCL> sz_unit_id<001> fitness<     OK> supplies<    GOOD> Nominal<      100.00 643> initial< 500> delivered< 151> rejected<   0> cash_in<   4> remained< 353>}
                     var match = Regex.Matches(strings.Get(i), @"<.+?>");
@@ -377,7 +379,7 @@ namespace Erl.logic.nominals
             // NDC Dispense <00,16,00,00,00,00,00> Action: 00000000
             for (int i = 0; i < strings.Count; ++i)
             {
-                if (Regex.IsMatch(strings.Get(i).Substring(58), pd))
+                if (Regex.IsMatch(strings.Get(i), pd))
                 {
                     var match = Regex.Match(strings.Get(i).Substring(58), @"<.+?>");
 
@@ -405,7 +407,7 @@ namespace Erl.logic.nominals
 
             while (i > 0)
             {
-                if (Regex.IsMatch(txt.Get(i).Substring(58), cdm_note))
+                if (Regex.IsMatch(txt.Get(i), cdm_note))
                 {
                     temp = i;
                     var match = Regex.Matches(txt.Get(i).Substring(58), @"<.+?>");
@@ -420,7 +422,7 @@ namespace Erl.logic.nominals
                         cdm.Add(nom, count);
                     }
                 }
-                else if (Regex.IsMatch(txt.Get(i).Substring(58), cdm_unit))
+                else if (Regex.IsMatch(txt.Get(i), cdm_unit))
                 {
                     // CDMNDCCASHUNIT<0>{wCuType<4,RCL> sz_unit_id<001> fitness<     OK> supplies<    GOOD> Nominal<      100.00 643> initial< 500> delivered< 151> rejected<   0> cash_in<   4> remained< 353>}
                     temp = i;
@@ -433,7 +435,7 @@ namespace Erl.logic.nominals
                         cdm.Add(nom, count);
                     }
                 }
-                else if (Regex.IsMatch(txt.Get(i).Substring(58), for_cdm))
+                else if (Regex.IsMatch(txt.Get(i), for_cdm))
                 {
                     break;
                 }
@@ -454,7 +456,7 @@ namespace Erl.logic.nominals
             // от конца текущей до конца предыдущей
             while (i > 0 && !Regex.IsMatch(txt.Get(i), for_bim))
             {
-                if (Regex.IsMatch(txt.Get(i).Substring(58), bim_note))
+                if (Regex.IsMatch(txt.Get(i), bim_note))
                 {
                     temp = i;
                     //BIMNDCNOTE<  0>{nominal<     50000 643> count<  203> dw_note_code<       0>}
@@ -506,7 +508,8 @@ namespace Erl.logic.nominals
 
             foreach (var item in last)
             {
-                if (cur[item.Key] > item.Value) return true;
+                // TODO:* добавлена проверка
+                if (!cur.ContainsKey(item.Key) || cur[item.Key] > item.Value) return true;
             }
 
             return false;

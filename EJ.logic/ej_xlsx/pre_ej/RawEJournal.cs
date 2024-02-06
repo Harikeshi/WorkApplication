@@ -114,7 +114,7 @@ namespace EJ.logic.ej_xlsx.pre_ej
                     // TODO: набирать op и запоминать в котором нет полного списка номиналов и когда список сформируется в каком либо, заполнить списки этих
                     operators.Add(op);
                     var oper = InitializeOperator(op.GetLines());
-                   
+
                     if (oper.Nominals.Count < 4)
                     {
                         NoNominalsList.Add(operators.Count - 1);
@@ -185,16 +185,23 @@ namespace EJ.logic.ej_xlsx.pre_ej
                     RawOperation op = new RawOperation();
                     op.Type = OperationType.Client;
                     ++j;
-                    // Пока не нашли разделитель
+                    // Пока не нашли разделитель                    
                     while (!Regex.IsMatch(strings[j], minuses) && !Regex.IsMatch(strings[j], start_client) &&
                         !Regex.IsMatch(strings[j], start_op_session) && !Regex.IsMatch(strings[j], start_sys_ndc) &&
                         !Regex.IsMatch(strings[j], start_balance) && !Regex.IsMatch(strings[j], start_balance))
                     {
-                        if (strings[j] == "") { ++j; continue; }
-                        op.Add(strings[j]);
+                        if (strings[j] != "")
+                        {
+                            op.Add(strings[j]);
+                        }
                         ++j;
+
+                        if (strings.Count <= j)
+                        {
+                            break;
+                        }
                     }
-                    if (Regex.IsMatch(strings[j], start_client)) --j;
+                    if (strings.Count > j && Regex.IsMatch(strings[j], start_client)) --j;
                     clients.Add(op);
                     var cl = InitializeClient(op.GetLines());
 
@@ -221,7 +228,9 @@ namespace EJ.logic.ej_xlsx.pre_ej
                     }
                     Clients.Add(cl);
                 }
-                if (strings[j] != "")
+
+                // Добавляем в остаток
+                if (strings.Count > j && strings[j] != "")
                     //if ((strings[j][0] >= 'А' && strings[j][0] <= 'Я') || strings[j][0] == ' ')
                     lines.Add(strings[j]);
             }
@@ -518,7 +527,8 @@ namespace EJ.logic.ej_xlsx.pre_ej
         }
         private int MakeTime(List<string> lines, int i, ref Operator op)
         {
-            string time = @"ДАТА:";
+            //TODO: Сделать совпадение с полной датой // ДАТА: 17.05.2023
+            string time = @"ДАТА: \d{2}\.\d{2}\.\d{4}";
             string p1 = @"\d{2}\.\d{2}\.\d{4}";//10.03.2023
             string p2 = @"\d{1,2}:\d{2}:\d{2}";// 9:20:17
 

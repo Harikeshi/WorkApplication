@@ -12,10 +12,12 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Http;
 //using static Application.Program;
 
 namespace Work.test
 {
+
     internal class Program
     {
         static void Main(string[] args)
@@ -23,7 +25,7 @@ namespace Work.test
 
             Console.OutputEncoding = Encoding.UTF8;
 
-            string actual = @"c:\Users\sshch\OneDrive\VisualStudio\WorkApplication\";
+            string actual = @"d:\temp\";
 
             string path_in = actual + "ej.txt";
             string path_out = actual + "excel.xlsx";
@@ -44,14 +46,11 @@ namespace Work.test
 
             //Process.Start("microsoft-edge:http://www.bing.com");
 
-            string dirs = @"d:\temp\dirs";
+            //string dirs = @"d:\temp\dirs";
 
-            TasksBase tb = new TasksBase(dirs, dirs);
+            //TasksBase tb = new TasksBase(dirs, dirs);
 
-
-
-
-            tb.ShowTodayWork();
+            //tb.ShowTodayWork();
             
 
 

@@ -42,7 +42,7 @@ namespace EJ.logic.ej_xlsx
         public List<OperDay> GetDays() { return Days; }
         public StructureForExcel(RawEJournal ej, string disp_path = null, string dep_path = null)
         {
-           
+
             // Если atm, если terminal                
             OperatorType type = OperatorType.Atm;
             if (ej.GetOperators().Count > 0) type = ej.GetOperators().First().Type;
@@ -54,10 +54,10 @@ namespace EJ.logic.ej_xlsx
 
             // 1. Получаем времена из Операторов, с учетом того что в это время была смена нумерации.
             // 2. Получаем опердни с учетом этого времени
-            
+
             // Список рабочих времен
             Times.Add(new DateTimeNominals(Start, Nominals));
-            
+
             // Будем сохранять времена из Опердней
             Times.AddRange(MakeTimesFromEjournal(ej));
             Times.Add(new DateTimeNominals(End, Nominals));
@@ -123,7 +123,7 @@ namespace EJ.logic.ej_xlsx
             if (File.Exists(dep_path))
             {
                 Depos = InitExcelOperations(dep_path);
-                
+
                 if (Start == DateTime.MinValue)
                 {
                     Start = Depos.Start;
@@ -146,15 +146,17 @@ namespace EJ.logic.ej_xlsx
                 oDay.End = Times[i].Time;
                 oDay.Nominals = Times[i - 1].Nominals;
 
-                if (Depos.Count != 0)
+                if (Depos != null && Depos.Count != 0)
                 {
                     oDay.exc_de = Depos.FindAll(x => x.Time >= Times[i - 1].Time && x.Time <= Times[i].Time);
-                    oDay.ej_de = cl.Depos.FindAll(x => x.Time >= Times[i - 1].Time && x.Time <= Times[i].Time);
+                    if (cl.Depos != null)
+                        oDay.ej_de = cl.Depos.FindAll(x => x.Time >= Times[i - 1].Time && x.Time <= Times[i].Time);
                 }
-                if (Disps.Count != 0)
+                if (Disps != null && Disps.Count != 0)
                 {
                     oDay.exc_di = Disps.FindAll(x => x.Time >= Times[i - 1].Time && x.Time <= Times[i].Time);
-                    oDay.ej_di = cl.Disps.FindAll(x => x.Time >= Times[i - 1].Time && x.Time <= Times[i].Time);
+                    if (cl.Disps != null)
+                        oDay.ej_di = cl.Disps.FindAll(x => x.Time >= Times[i - 1].Time && x.Time <= Times[i].Time);
                 }
 
                 Days.Add(oDay);
@@ -205,7 +207,7 @@ namespace EJ.logic.ej_xlsx
 
             ExcelOperations exo = new ExcelOperations(lines);
 
-            exo.Start = reader.Start; 
+            exo.Start = reader.Start;
             exo.End = reader.End;
 
             return exo;
