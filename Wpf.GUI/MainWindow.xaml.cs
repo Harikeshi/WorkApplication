@@ -163,7 +163,7 @@ namespace Wpf.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + "\nФайл ej.txt не был создан.");
+                MessageBox.Show(ex.Message + "Файл ej.txt не был создан.");
             }
 
             return false;
@@ -181,8 +181,14 @@ namespace Wpf.GUI
             {
                 if (File.Exists(path + ejp))
                 {
-                    GenerateEJExcel ej = new GenerateEJExcel(path + ejp, excel_to + exc_out, excel_from + pdisp, excel_from + pdepo);
-
+                    try
+                    {
+                        GenerateEJExcel ej = new GenerateEJExcel(path + ejp, excel_to + exc_out, excel_from + pdisp, excel_from + pdepo);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Не удалось обработать файл ej.txt");
+                    }
                     try
                     {
                         Process.Start(excel_to + exc_out);
