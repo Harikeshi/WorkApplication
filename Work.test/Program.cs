@@ -16,7 +16,6 @@ using System.Net.Http;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-//using DocumentFormat.OpenXml.Spreadsheet;
 using System.Runtime.InteropServices;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Windows.Interop;
@@ -27,8 +26,6 @@ using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Office.CustomUI;
 using System.Xml;
 using DocumentFormat.OpenXml.ExtendedProperties;
-//using DocumentFormat.OpenXml.Drawing;
-//using static Application.Program;
 
 namespace Work.test
 {
@@ -71,6 +68,8 @@ namespace Work.test
 
                 var body = doc.MainDocumentPart.Document.Body;
 
+                
+
                 string atmNum = "AM010012";
                 string sum = "1000";
                 string sumt = "много тысяч";
@@ -80,7 +79,41 @@ namespace Work.test
 
                 //var paragraphs = doc.MainDocumentPart.Document.Body.Elements<Paragraph>();
 
+                //var par = paragraphs.ElementAt(5);
+
+
                 string outxml = File.ReadAllText(actual + "par3_card.xml");
+
+                var par = new Paragraph(outxml);
+
+                var runs = par.Elements<Run>();
+
+                // К существующему параграфу добавить ран с текстом и добавить к боди
+
+                var r = runs.ElementAt(0);
+                // Добавить новый текст
+
+                // Убрать параграф 0
+                var r1 = par.InsertAt(new Run(), 2);
+
+                r1.AppendChild(new Text("ХУЙ"));
+
+                var t = r.Elements<Text>();
+
+                
+               
+
+                var t0 = t.ElementAt(0);
+                t0.Text = "За данный период поступило заявление о несогласии с операцией";
+
+                //body.AppendChild(par);
+
+                //r.InsertAt(new Text("XXX"), 2);                
+
+                //r.InnerText = "За данный период поступило заявление о несогласии с операцией";
+
+                Console.WriteLine(par.InnerText);
+
 
                 // Параграф 7
 
@@ -95,28 +128,35 @@ namespace Work.test
 
         }
 
+        enum MachineType
+        {
+            atm, ipt
+        }
+
         private static void FullMethod(string actual, List<string> months, List<string> Condition, ref Body body, string atmNum, string sum, string Card, string d1, string d2)
         {
+            // Header with date
             MakeHeader(months, ref body, actual);
             body.AppendChild(new Paragraph());
             body.AppendChild(new Paragraph());
 
-            AddFirstParagraph(atmNum, d1, d2, ref body, actual);
+            //
+            AddFirstParagraph(atmNum, d1, d2, ref body, actual, MachineType.ipt);
             body.AppendChild(new Paragraph());
 
-            AddSecondParagraph(atmNum, ref body, Condition[0], sum, actual);
-            body.AppendChild(new Paragraph());
+            //AddSecondParagraph(atmNum, ref body, Condition[0], sum, actual);
+            //body.AppendChild(new Paragraph());
 
-            AddThirdParagraph(ref body, Card, sum, actual);
-            body.AppendChild(new Paragraph());
+            //AddThirdParagraph(ref body, Card, sum, actual);
+            //body.AppendChild(new Paragraph());
 
-            AddPre(ref body, actual);
+            //AddPre(ref body, actual);
 
-            body.AppendChild(new Paragraph());
-            body.AppendChild(new Paragraph());
-            body.AppendChild(new Paragraph());
-            AddSign(actual, ref body);
-            //return body;
+            //body.AppendChild(new Paragraph());
+            //body.AppendChild(new Paragraph());
+            //body.AppendChild(new Paragraph());
+            //AddSign(actual, ref body);
+            ////return body;
         }
 
         private static string AddSign(string actual, ref Body body)
@@ -129,13 +169,18 @@ namespace Work.test
             return outxml;
         }
 
-        private static void AddFirstParagraph(string atmNum, string d1, string d2, ref Body body, string path)
+        private static void AddFirstParagraph(string atmNum, string d1, string d2, ref Body body, string path, MachineType type)
         {
             string outxml = File.ReadAllText(path + "par1_period.xml");
 
             // Параграф 5
             var paragraph = body.AppendChild(new Paragraph(outxml));
             var runs = paragraph.Elements<Run>();
+
+            foreach(var i in runs)
+            {
+                Console.WriteLine(i.InnerText);
+            }
 
             // TODO: Добавить время
             var text = runs.ElementAt(2).Elements<Text>().First();
@@ -148,6 +193,7 @@ namespace Work.test
             text.Text = d2;
         }
 
+        // Если излишек или недостача, если нет не добавлять
         private static void AddSecondParagraph(string atmNum, ref Body body, string cond, string sum, string path)
         {
             string outxml = File.ReadAllText(path + "par2_diff.xml");
@@ -170,6 +216,7 @@ namespace Work.test
             text = runs.ElementAt(11).Elements<Text>().First();
             text.Text = "много тысяч";
         }
+
         private static void AddThirdParagraph(ref Body body, string card, string sum, string path)
         {
             string outxml = File.ReadAllText(path + "par3_card.xml");
@@ -178,12 +225,12 @@ namespace Work.test
             var paragraph = body.AppendChild(new Paragraph(outxml));
             var runs = paragraph.Elements<Run>();
 
+            // По карте/ без карты
             var text = runs.ElementAt(2).Elements<Text>().First();
             text.Text = card;
 
             text = runs.ElementAt(6).Elements<Text>().First();
             text.Text = sum;
-
         }
 
         private static void AddPre(ref Body body, string path)
@@ -290,55 +337,6 @@ namespace Work.test
         //        }
         //    }
 
-        private static void CreateHeader(Body body, Justification paragraphJustification)
-        {
-
-
-        }
-
-        private static RunProperties CreateRunProp()
-        {
-            var runProp = new RunProperties();
-            var font = new RunFonts { Ascii = "Times New Roman" };
-            var size = new FontSize { Val = new StringValue("20") };
-
-            runProp.Append(font);
-            runProp.Append(size);
-
-
-            return runProp;
-        }
-
-        private static Run CreateRun(string txt, RunProperties properties)
-        {
-            Run run = new Run(CreateRunProp());
-
-            // String msg contains the text, "Hello, Word!"
-            run.AppendChild(new Text(txt));
-
-            return run;
-        }
-
-        private static void AddParagraph(Body body, string txt, Justification paragraphJustification)
-        {
-
-            var properties = new ParagraphProperties();
-
-            properties.Append(paragraphJustification);
-
-            Paragraph para = body.AppendChild(new Paragraph(properties));
-
-            var runProp = new RunProperties();
-            var font = new RunFonts { Ascii = "Times New Roman" };
-            var size = new FontSize { Val = new StringValue("20") };
-            runProp.Append(font);
-            runProp.Append(size);
-
-            Run run = para.AppendChild(new Run(runProp));
-
-            // String msg contains the text, "Hello, Word!"
-            run.AppendChild(new Text(txt));
-        }
 
         private static void EJGenerateTest(string path_in, string path_out, string dep, string dis)
         {
