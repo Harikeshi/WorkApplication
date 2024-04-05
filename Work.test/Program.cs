@@ -41,7 +41,7 @@ namespace Work.test
 
             Console.OutputEncoding = Encoding.UTF8;
 
-            string actual = @"d:\temp\";
+            string actual = @"C:\Users\sshch\OneDrive\projects\work\";
 
             string path_in = actual + "ej.txt";
             string path_out = actual + "excel.xlsx";

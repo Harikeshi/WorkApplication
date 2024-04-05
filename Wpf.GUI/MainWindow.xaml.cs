@@ -20,23 +20,23 @@ namespace Wpf.GUI
         // TODO: в setting добавить для дома и нет
 
         // Work
-        //readonly string path = @"C:\Users\schegolihin\Documents\Задания";
-        //readonly string excel_from = @"c:\Users\schegolihin\Documents\Задания"; // Откуда
-        //readonly string excel_to = @"c:\Users\schegolihin\Documents\Задания"; // Куда
+        //readonly string path = @"C:\Users\schegolihin\Documents\Задания\";
+        //readonly string excel_from = @"c:\Users\schegolihin\Documents\Задания\"; // Откуда
+        //readonly string excel_to = @"c:\Users\schegolihin\Documents\Задания\"; // Куда
         //readonly string acts_from = @"A:\Акты технической экспертизы\";
 
 
         //Home
-        readonly string path = @"d:\Projects\work\actual"; // Home
-        readonly string excel_from = @"d:\Projects\work\actual"; // Home
-        readonly string excel_to = @"d:\Projects\work\actual"; // Home
+        readonly string path = @"C:\Users\sshch\OneDrive\projects\work\"; // Home
+        readonly string excel_from = @"C:\Users\sshch\OneDrive\projects\work\"; // Home
+        readonly string excel_to = @"C:\Users\sshch\OneDrive\projects\work\"; // Home
         readonly string acts_from = @"d:\temp\dirs";
 
-        readonly string erlp = @"\erl.xlsx";
-        readonly string ejp = @"\ej.txt";
-        readonly string exc_out = @"\excel.xlsx";
-        readonly string pdepo = @"\depo.xlsx";
-        readonly string pdisp = @"\disp.xlsx";
+        readonly string erlp = @"erl.xlsx";
+        readonly string ejp = @"ej.txt";
+        readonly string exc_out = @"excel.xlsx";
+        readonly string pdepo = @"depo.xlsx";
+        readonly string pdisp = @"disp.xlsx";
 
         readonly string set_path = @"settings.txt";
         public MainWindow()
