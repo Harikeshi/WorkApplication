@@ -19,13 +19,15 @@ using DocumentFormat.OpenXml.Packaging;
 using System.Runtime.InteropServices;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Windows.Interop;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+//using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Vml;
-using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Office.CustomUI;
 using System.Xml;
 using DocumentFormat.OpenXml.ExtendedProperties;
+//using DocumentFormat.OpenXml.Drawing;
+//using DocumentFormat.OpenXml.Presentation;
+//using DocumentFormat.OpenXml.Drawing;
 
 namespace Work.test
 {
@@ -33,104 +35,203 @@ namespace Work.test
     internal class Program
     {
 
-        
+
+        static List<string> months = new List<string> { "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сментября", "октября", "ноября", "декабря" };
+        static List<string> Conditions = new List<string> { "Излишек", "Недостача" }; // Если подаем +/-/null излишек/недостача/не выводим 
+
+
+        ////-----------------------------------------
+        // для редактирования параграфов, прочитать все параграфы найти нужный
+
+        //var paragraphs = body.Elements<Paragraph>();
+        //var par = paragraphs.ElementAt(7);
+        //var runs = par.Elements<Run>();
+
+        //Console.WriteLine(par.InnerText);
+        //Console.WriteLine(new string('-', 20));
+        //foreach (var run in runs)
+        //{
+        //    Console.WriteLine(run.InnerText);
+        //}
+        //File.WriteAllText(templates + "par3_card.xml", par.OuterXml);
+
+        ////-------------------------------------
+
+
 
 
         static void Main(string[] args)
         {
 
+            // взять шаблон, добавить части в зависимости от конечного шаблона
+
             Console.OutputEncoding = Encoding.UTF8;
 
             string actual = @"C:\Users\sshch\OneDrive\projects\work\";
+            string templates = actual + @"templates\";
+            string target_blank = actual + @"comp\blank.docx";
 
+            if (File.Exists(target_blank))
+            {
+                File.Delete(target_blank);
+            }
+
+            File.Copy(templates + "blank.docx", target_blank, true);
+
+
+            /*
             string path_in = actual + "ej.txt";
             string path_out = actual + "excel.xlsx";
             string epath_in = actual;
             string epath_out = actual + "erl.xlsx";
-
             string dep = actual + "depo.xlsx";
             string dis = actual + "disp.xlsx";
-
-
             string file = actual + "depos1.docx";
-
             string txt = actual + "depos.docx";
-            string blank = actual + "blank.docx";
-
             string x = actual + "x.xml";
+            */
 
-            List<string> months = new List<string> { "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сментября", "октября", "ноября", "декабря" };
-            List<string> Condition = new List<string> { "Излишек", "Недостача" }; // Если подаем +/-/null излишек/недостача/не выводим 
 
-            using (WordprocessingDocument doc = WordprocessingDocument.Open(blank, true))
+            string file = templates + @"file.docx";
+
+            // Открыть файл и вычленить таблицы и текст
+            using (WordprocessingDocument doc = WordprocessingDocument.Open(file, true))
             {
-                //var table = doc.MainDocumentPart.Document.Body.Elements<Table>().First();
-
+                
                 var body = doc.MainDocumentPart.Document.Body;
 
-                
 
-                string atmNum = "AM010012";
-                string sum = "1000";
-                string sumt = "много тысяч";
-                string Card = "220038XXXXXX5959";
-                string d1 = "10/12/2024";
-                string d2 = "11/12/2024";
+                var tbls = body.Elements<Paragraph>();
 
-                //var paragraphs = doc.MainDocumentPart.Document.Body.Elements<Paragraph>();
+                var tbl = tbls.ElementAt(11);
+                Console.WriteLine(tbl.InnerText);
 
-                //var par = paragraphs.ElementAt(5);
+                var runs = tbl.Elements<Run>();
 
+                foreach (Run run in runs)
+                {
+                    Console.WriteLine(run.InnerText);
+                }
 
-                string outxml = File.ReadAllText(actual + "par3_card.xml");
+                //int i = 0;
+                //foreach (Paragraph p in tbls)
+                //{
+                //    Console.WriteLine(i + " " + p.InnerText);
+                //    i++;
+                //}
 
-                var par = new Paragraph(outxml);
+               // File.WriteAllText(templates + @"par_operaciy_ne_bilo.xml", tbl.OuterXml);
 
-                var runs = par.Elements<Run>();
-
-                // К существующему параграфу добавить ран с текстом и добавить к боди
-
-                var r = runs.ElementAt(0);
-                // Добавить новый текст
-
-                // Убрать параграф 0
-                var r1 = par.InsertAt(new Run(), 2);
-
-                r1.AppendChild(new Text("ХУЙ"));
-
-                var t = r.Elements<Text>();
-
-                
-               
-
-                var t0 = t.ElementAt(0);
-                t0.Text = "За данный период поступило заявление о несогласии с операцией";
-
-                //body.AppendChild(par);
-
-                //r.InsertAt(new Text("XXX"), 2);                
-
-                //r.InnerText = "За данный период поступило заявление о несогласии с операцией";
-
-                Console.WriteLine(par.InnerText);
+                //Console.WriteLine(tbl.InnerText);
 
 
-                // Параграф 7
 
-                // 1 paragraph
-                // 2 paragraph
-                // 3 paragraph
-
-
-                //FullMethod(actual, months, Condition, ref body, atmNum, sum, Card, d1, d2);
 
             }
 
+
+
+            //using (WordprocessingDocument doc = WordprocessingDocument.Open(target_blank, true))
+            //{
+            //    //var table = doc.MainDocumentPart.Document.Body.Elements<Table>().First();
+
+            //    var body = doc.MainDocumentPart.Document.Body;
+
+            //    string atmNum = "AM010012";
+            //    string sum = "2000";
+            //    string sumt = "много тысяч";
+            //    string Card = "220038XXXXXX5959"; // карта или ""
+            //    string d1 = "10/12/2024";
+            //    string d2 = "11/12/2024";
+
+            //    //MakeHeader(months, ref body, templates);
+            //    //AddFirstParagraph(atmNum, d1, d2, ref body, templates, MachineType.ipt);
+            //    //AddSecondParagraph(atmNum, ref body, 0, sum, MachineType.ipt, templates);
+            //    //AddThirdParagraph(ref body, Card, sum, templates);
+            //    //AddPre(ref body, templates); //Анализ показал
+
+
+            //    var tabl = new Table(File.ReadAllText(templates + "tbl_depo_small.xml"));
+            //    var para = new Paragraph(File.ReadAllText(templates + "par5_depo_total.xml"));
+            //    body.Append(tabl);
+            //    body.Append(para);
+
+            //    // Параграф 7
+
+            //    // 1 paragraph
+            //    // 2 paragraph
+            //    // 3 paragraph
+
+
+            //    //FullMethod(actual, months, Condition, ref body, atmNum, sum, Card, d1, d2);
+
+            //}
+
         }
+
+        private static void MakeTableDesc(ref Body body, string tbl, string desc)
+        {
+            var tabl = new Table(File.ReadAllText(tbl));
+            body.Append(tabl);
+            var par = new Paragraph(File.ReadAllText(desc));
+            body.Append(par);
+        }
+
+        private static void AddTable(ref Body body, string path, OperationType type, int tbl_size, int desc_size)
+        {
+            //Добавить таблицу и описание
+            string tpath, dpath;
+            // depo
+            if (type == OperationType.depo)
+            {
+                // большая таблица
+                if (tbl_size == 0)
+                {
+                    tpath = path + "";
+                    dpath = path + "";
+                }
+                else
+                {
+                    tpath = path + "";
+                    dpath = path + "";
+                }
+                if (desc_size == 0)
+                {
+                    tpath = path + "";
+                    dpath = path + "";
+                }
+                else
+                {
+                    tpath = path + "";
+                    dpath = path + "";
+                }
+            }
+            // disp
+            else
+            {               
+                if (desc_size == 0)
+                {
+                    tpath = path + "";
+                    dpath = path + "";
+                }
+                else
+                {
+                    tpath = path + "";
+                    dpath = path + "";
+                }
+            }
+
+            MakeTableDesc(ref body, path + "", path + "");
+        }
+
 
         enum MachineType
         {
             atm, ipt
+        }
+        enum OperationType
+        {
+            depo, disp
         }
 
         private static void FullMethod(string actual, List<string> months, List<string> Condition, ref Body body, string atmNum, string sum, string Card, string d1, string d2)
@@ -177,46 +278,60 @@ namespace Work.test
             var paragraph = body.AppendChild(new Paragraph(outxml));
             var runs = paragraph.Elements<Run>();
 
-            foreach(var i in runs)
-            {
-                Console.WriteLine(i.InnerText);
-            }
-
-            // TODO: Добавить время
             var text = runs.ElementAt(2).Elements<Text>().First();
-            text.Text = atmNum;
+            if (type == MachineType.ipt)
+            {
+                text.Text = "ИПТ"; // "банкомата" , "ИПТ" 
+            }
+            else
+            {
+                text.Text = "банкомата";
+            }
+            text = runs.ElementAt(4).Elements<Text>().First();
+            text.Text = atmNum; // 
 
-            text = runs.ElementAt(7).Elements<Text>().First();
-            text.Text = d1;
+            text = runs.ElementAt(10).Elements<Text>().First();
+            text.Text = d1 + " г.";
 
-            text = runs.ElementAt(11).Elements<Text>().First();
-            text.Text = d2;
+            text = runs.ElementAt(14).Elements<Text>().First();
+            text.Text = d2 + " г";
         }
-
-        // Если излишек или недостача, если нет не добавлять
-        private static void AddSecondParagraph(string atmNum, ref Body body, string cond, string sum, string path)
+        private static void AddSecondParagraph(string atmNum, ref Body body, int cond, string sum, MachineType type, string path)
         {
+
+            if (cond == 2) return;
+
             string outxml = File.ReadAllText(path + "par2_diff.xml");
 
             // Параграф 7
             var paragraph = body.AppendChild(new Paragraph(outxml));
             var runs = paragraph.Elements<Run>();
 
+            // излишек / недостача / ""
             var text = runs.ElementAt(0).Elements<Text>().First();
-            text.Text = cond;
+            text.Text = Conditions[cond];
 
             text = runs.ElementAt(4).Elements<Text>().First();
+            if (type == MachineType.ipt)
+            {
+                text.Text = "ИПТ"; // "банкомата" , "ИПТ" 
+            }
+            else
+            {
+                text.Text = "банкомата";
+            }
+
+            text = runs.ElementAt(6).Elements<Text>().First();
             text.Text = atmNum;
 
             //TODO: Добавить сумму
-            text = runs.ElementAt(8).Elements<Text>().First();
+            text = runs.ElementAt(10).Elements<Text>().First();
             text.Text = sum;
 
             //TODO: перевод по формуле из десятичных в текст
-            text = runs.ElementAt(11).Elements<Text>().First();
+            text = runs.ElementAt(13).Elements<Text>().First();
             text.Text = "много тысяч";
         }
-
         private static void AddThirdParagraph(ref Body body, string card, string sum, string path)
         {
             string outxml = File.ReadAllText(path + "par3_card.xml");
@@ -225,20 +340,32 @@ namespace Work.test
             var paragraph = body.AppendChild(new Paragraph(outxml));
             var runs = paragraph.Elements<Run>();
 
-            // По карте/ без карты
-            var text = runs.ElementAt(2).Elements<Text>().First();
-            text.Text = card;
 
-            text = runs.ElementAt(6).Elements<Text>().First();
+            // По карте/ без карты
+            var text = runs.ElementAt(4).Elements<Text>().First();
+            if (card == "")
+            {
+                text.Text = "";
+                text = runs.ElementAt(2).Elements<Text>().First();
+                text.Text = "";
+            }
+            else
+            {
+                text.Text = card;
+            }
+
+            text = runs.ElementAt(8).Elements<Text>().First();
             text.Text = sum;
         }
-
         private static void AddPre(ref Body body, string path)
         {
             string outxml = File.ReadAllText(path + "par4_pre.xml");
             var paragraph = body.AppendChild(new Paragraph(outxml));
-        }
 
+            var runs = paragraph.Elements<Run>();
+
+            Console.WriteLine(paragraph.InnerText);
+        }
         private static void MakeHeader(List<string> months, ref Body body, string path)
         {
             string outxml = File.ReadAllText(path + "tbl_header.xml");
